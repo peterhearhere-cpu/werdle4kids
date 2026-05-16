@@ -78,6 +78,14 @@
         .word-item {
             font-size: 1rem; font-weight: bold; background: #FFF9E6; color: #333;
             padding: 4px 8px; border-radius: 8px; border: 1px solid #FFD93D;
+            transition: all 0.3s ease;
+        }
+        /* Style for crossed-off words */
+        .word-item.found {
+            text-decoration: line-through;
+            opacity: 0.4;
+            background: #e0e0e0;
+            border-color: #b5b5b5;
         }
 
         /* Celebration Screen */
@@ -147,24 +155,27 @@
             { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "bag", emoji: "🎒" },
             { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, { word: "bee", emoji: "🐝" },
             { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" },
-            { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, { word: "car", emoji: "🚗" },
-            { word: "cat", emoji: "🐱" }, { word: "cow", emoji: "🐮" }, { word: "cup", emoji: "🥤" },
-            { word: "dog", emoji: "🐶" }, { word: "egg", emoji: "🥚" }, { word: "fan", emoji: "🪭" },
-            { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, { word: "gem", emoji: "💎" },
-            { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, { word: "ice", emoji: "🧊" },
-            { word: "jam", emoji: "🍓" }, { word: "jar", emoji: "🫙" }, { word: "jet", emoji: "🛩️" },
-            { word: "key", emoji: "🔑" }, { word: "lip", emoji: "👄" }, { word: "log", emoji: "🪵" },
-            { word: "map", emoji: "🗺️" }, { word: "mop", emoji: "🧹" }, { word: "mug", emoji: "🍺" },
-            { word: "net", emoji: "🕸️" }, { word: "nut", emoji: "🥜" }, { word: "owl", emoji: "🦉" },
-            { word: "pen", emoji: "🖊️" }, { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" },
+            { word: "bum", emoji: "🍑" }, { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, 
+            { word: "car", emoji: "🚗" }, { word: "cat", emoji: "🐱" }, { word: "cow", emoji: "🐮" }, 
+            { word: "cup", emoji: "🥤" }, { word: "dog", emoji: "🐶" }, { word: "egg", emoji: "🥚" }, 
+            { word: "fan", emoji: "🪭" }, { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, 
+            { word: "gem", emoji: "💎" }, { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, 
+            { word: "ice", emoji: "🧊" }, { word: "jam", emoji: "🍓" }, { word: "jar", emoji: "🫙" }, 
+            { word: "jet", emoji: "🛩️" }, { word: "key", emoji: "🔑" }, { word: "lip", emoji: "👄" }, 
+            { word: "log", emoji: "🪵" }, { word: "map", emoji: "🗺️" }, { word: "mop", emoji: "🧹" }, 
+            { word: "mug", emoji: "🍺" }, { word: "net", emoji: "🕸️" }, { word: "nut", emoji: "🥜" }, 
+            { word: "owl", emoji: "🦉" }, { word: "pea", emoji: "🫛" }, { word: "pen", emoji: "🖊️" }, 
+            { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, { word: "poo", emoji: "💩" }, 
             { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, { word: "rug", emoji: "🧺" },
             { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, { word: "sun", emoji: "☀️" },
-            { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, { word: "web", emoji: "🕸️" }
+            { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, { word: "web", emoji: "🕸️" },
+            { word: "wee", emoji: "🚽" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
         let totalAttempts = 0;
         let currentGuess = "";
+        let remainingWords = [];
         const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
         
         // --- Web Audio Synthesizer Engine ---
@@ -177,7 +188,7 @@
                 let osc = audioCtx.createOscillator();
                 let gainNode = audioCtx.createGain();
                 
-                osc.type = type;
+                osc.type = type; 
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 
                 gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
@@ -194,27 +205,29 @@
         function playWinMelody() {
             const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
             notes.forEach((freq, index) => {
-                setTimeout(() => playNote(freq, 'triangle', 0.4, 0.2), index * 120);
+                setTimeout(() => playNote(freq, 'square', 0.2, 0.2), index * 100);
             });
         }
 
-        // --- Tetris BGM Sequencer ---
+        // --- Upgraded Retro Tetris BGM Sequencer ---
         let bgmInterval;
         let bgmPlaying = false;
+        
         const tetrisNotes = { 'E5': 659.25, 'B4': 493.88, 'C5': 523.25, 'D5': 587.33, 'A4': 440.00 };
         const tetrisMelody = [
-            ['E5', 2], ['B4', 1], ['C5', 1], ['D5', 2], ['C5', 1], ['B4', 1],
-            ['A4', 2], ['A4', 1], ['C5', 1], ['E5', 2], ['D5', 1], ['C5', 1],
-            ['B4', 3], ['C5', 1], ['D5', 2], ['E5', 2], ['C5', 2], ['A4', 2], ['A4', 2]
+            ['E5', 4], ['B4', 2], ['C5', 2], ['D5', 4], ['C5', 2], ['B4', 2],
+            ['A4', 4], ['A4', 2], ['C5', 2], ['E5', 4], ['D5', 2], ['C5', 2],
+            ['B4', 6], ['C5', 2], ['D5', 4], ['E5', 4],
+            ['C5', 4], ['A4', 4], ['A4', 8] 
         ];
+        
         let noteIdx = 0;
-        let beatLength = 160; // Speed of the song
+        let beatLength = 75; 
 
         function stepBGM() {
             if (!bgmPlaying) return;
             let [note, beats] = tetrisMelody[noteIdx];
-            // Play a square wave to sound like an Amiga/Gameboy
-            playNote(tetrisNotes[note], 'square', (beats * beatLength)/1000, 0.03); 
+            playNote(tetrisNotes[note], 'square', (beats * beatLength)/1000, 0.04); 
             
             noteIdx = (noteIdx + 1) % tetrisMelody.length;
             bgmInterval = setTimeout(stepBGM, beats * beatLength);
@@ -235,6 +248,20 @@
             }
         }
 
+        // --- Word Bank Setup ---
+        function setupWordBank() {
+            const wordBank = document.getElementById('word-bank-list');
+            wordBank.innerHTML = '';
+            WORDS.forEach(obj => {
+                let div = document.createElement('div');
+                div.className = 'word-item';
+                div.id = `wb-${obj.word.toLowerCase()}`;
+                div.innerText = `${obj.emoji} ${obj.word}`;
+                wordBank.appendChild(div);
+            });
+            remainingWords = [...WORDS];
+        }
+
         // --- Game Logic ---
         function initGame() {
             document.getElementById('board').innerHTML = '';
@@ -242,17 +269,15 @@
             currentGuess = ""; gameOver = false;
             document.getElementById('win-overlay').style.display = 'none';
             
-            // Populate Word Bank
-            const wordBank = document.getElementById('word-bank-list');
-            wordBank.innerHTML = '';
-            WORDS.forEach(obj => {
-                let div = document.createElement('div');
-                div.className = 'word-item';
-                div.innerText = `${obj.emoji} ${obj.word}`;
-                wordBank.appendChild(div);
-            });
+            // If they exhausted all words, reset the deck and the word bank UI
+            if (remainingWords.length === 0) {
+                setupWordBank();
+            }
             
-            let picked = WORDS[Math.floor(Math.random() * WORDS.length)];
+            // Pull a random word from the remaining deck
+            let randomIndex = Math.floor(Math.random() * remainingWords.length);
+            let picked = remainingWords.splice(randomIndex, 1)[0];
+            
             targetWord = picked.word.toLowerCase();
             targetEmoji = picked.emoji;
             
@@ -288,12 +313,10 @@
 
         function press(key) {
             if (gameOver) return;
-            
-            // Resume audio context just in case browser suspended it
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             
             if (key === 'BACK') {
-                playNote(220, 'triangle', 0.1, 0.1); 
+                playNote(220, 'square', 0.1, 0.1); 
                 if (currentTile > 0) {
                     currentTile--;
                     currentGuess = currentGuess.slice(0, -1);
@@ -307,8 +330,8 @@
                 }
             } else if (/^[a-z]$/i.test(key)) {
                 if (currentTile < 3) {
-                    const letterPitches = [440, 523, 659]; // Typing pitches
-                    playNote(letterPitches[currentTile], 'triangle', 0.15, 0.1);
+                    const letterPitches = [440, 523, 659];
+                    playNote(letterPitches[currentTile], 'square', 0.1, 0.1);
                     
                     currentGuess += key.toLowerCase();
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
@@ -351,6 +374,13 @@
             
             if (rightCount === 3) {
                 gameOver = true;
+                
+                // Cross the word off the master list visually
+                let foundItem = document.getElementById(`wb-${targetWord}`);
+                if (foundItem) {
+                    foundItem.classList.add('found');
+                }
+
                 setTimeout(() => {
                     playWinMelody();
                     document.getElementById('word-reveal').innerText = `You spelled ${targetWord.toUpperCase()}!`;
@@ -361,7 +391,7 @@
                 return;
             }
             
-            playNote(400, 'sine', 0.1, 0.1);
+            playNote(400, 'square', 0.1, 0.1);
             
             currentRow++;
             currentTile = 0;
@@ -371,6 +401,8 @@
 
         function resetGame() { initGame(); }
         
+        // Initial Startup
+        setupWordBank();
         initGame();
     </script>
 </body>
