@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wordle 4 Autumn & Layla✨</title>
+    <title>Werdle 4 Kids! ✨</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
@@ -18,12 +18,28 @@
             box-sizing: border-box;
         }
         
-        /* Header & Music Toggle */
-        .header-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; margin-bottom: 5px; }
-        h1 { color: #FF6B6B; font-size: 2rem; text-shadow: 2px 2px #FFD93D; margin: 0; }
+        /* Header & Music Toggle - FIXED FOR LONG TITLES */
+        .header-bar { 
+            display: flex; 
+            flex-direction: column; /* Stacks the title and button on top of each other */
+            align-items: center; 
+            width: 100%; 
+            max-width: 400px; 
+            margin-bottom: 10px; 
+            gap: 8px;
+        }
+        h1 { 
+            color: #FF6B6B; 
+            font-size: 1.8rem; 
+            text-shadow: 2px 2px #FFD93D; 
+            margin: 0; 
+            text-align: center; /* Ensures the text is perfectly centered */
+            line-height: 1.2;
+        }
         #music-btn {
             background-color: #4D96FF; color: white; border: none; border-radius: 8px;
-            padding: 8px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #3578E5;
+            padding: 6px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #3578E5;
+            font-size: 0.9rem;
         }
         #music-btn:active { transform: translateY(2px); box-shadow: 0 1px #3578E5; }
         
@@ -35,7 +51,7 @@
         .grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: auto; }
         .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .tile {
-            width: 55px; height: 55px; border: 3px solid #4D96FF; border-radius: 12px;
+            width: 50px; height: 50px; border: 3px solid #4D96FF; border-radius: 12px;
             background-color: white; font-size: 1.8rem; font-weight: bold; color: #333;
             display: flex; align-items: center; justify-content: center; text-transform: uppercase;
         }
@@ -67,20 +83,24 @@
             display: flex; align-items: center; justify-content: center; color: #4D96FF;
         }
 
-        /* FULL VIEW Word Bank */
+        /* FULL VIEW Word Bank - FIXED TO 5 COLUMNS */
         .word-bank-wrapper { max-width: 450px; margin-top: 15px; width: 100%; padding-bottom: 20px; }
         .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 10px 0; font-size: 1.2rem; }
         .word-bank {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); /* Forces exactly 5 words across */
+            gap: 4px;
             background: white; border: 3px dashed #FFD93D; border-radius: 15px;
-            padding: 15px; 
-            /* Removed max-height so it shows all words automatically */
+            padding: 8px; 
             height: auto; 
+            box-sizing: border-box;
         }
         .word-item {
-            font-size: 1rem; font-weight: bold; background: #FFF9E6; color: #333;
-            padding: 5px 10px; border-radius: 8px; border: 1px solid #FFD93D;
+            font-size: 0.75rem; font-weight: bold; background: #FFF9E6; color: #333;
+            padding: 4px 2px; border-radius: 6px; border: 1px solid #FFD93D;
             transition: all 0.3s ease;
+            display: flex; flex-direction: column; /* Stacks emoji above the word */
+            align-items: center; justify-content: center; text-align: center;
         }
         .word-item.found {
             text-decoration: line-through; opacity: 0.3;
@@ -150,7 +170,6 @@
     </div>
 
     <script>
-        // Full word list with new additions!
         const WORDS = [
             { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "bag", emoji: "🎒" },
             { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, { word: "bee", emoji: "🐝" },
@@ -182,7 +201,7 @@
         // --- Dual-Voice Web Audio Engine ---
         let audioCtx = null;
         function playNote(freq, type, duration, vol = 0.1) {
-            if (!freq) return; // Allow rests
+            if (!freq) return; 
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -194,7 +213,6 @@
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 
                 gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
-                // Slight envelope to mimic hardware decay
                 gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + (duration * 0.8), 0.05);
                 
                 osc.connect(gainNode);
@@ -212,19 +230,16 @@
             });
         }
 
-        // --- Amiga Tracker Module (Wally Beben Intro Sequence) ---
+        // --- Amiga Tracker Module ---
         let bgmInterval;
         let bgmPlaying = false;
         
-        // Frequencies for the dark Amiga intro
         const n = { 
             C2: 65.41, Eb2: 77.78, F2: 87.31, G2: 98.00, Bb2: 116.54, 
             C3: 130.81, D3: 146.83, Eb3: 155.56, G3: 196.00,
             C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00
         };
 
-        // Dual-track sequencer: [Melody Note, Bass Note, Ticks Duration]
-        // This mimics the iconic atmospheric start of the Amiga version!
         const amigaSequence = [
             [null, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
             [n.G4, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
@@ -235,15 +250,13 @@
         ];
         
         let noteIdx = 0;
-        let beatLength = 110; // Tracker speed
+        let beatLength = 110; 
 
         function stepBGM() {
             if (!bgmPlaying) return;
             let [melody, bass, ticks] = amigaSequence[noteIdx];
             
-            // Channel 1: Square wave lead (like the Amiga Paula chip)
             if (melody) playNote(melody, 'square', (ticks * beatLength)/1000, 0.04); 
-            // Channel 2: Sawtooth bass (for that heavy, fuzzy low end)
             if (bass) playNote(bass, 'sawtooth', (ticks * beatLength)/1000, 0.08);
             
             noteIdx = (noteIdx + 1) % amigaSequence.length;
@@ -269,14 +282,14 @@
         function setupWordBank() {
             const wordBank = document.getElementById('word-bank-list');
             wordBank.innerHTML = '';
-            // Sort words alphabetically for easier searching
             WORDS.sort((a, b) => a.word.localeCompare(b.word));
             
             WORDS.forEach(obj => {
                 let div = document.createElement('div');
                 div.className = 'word-item';
                 div.id = `wb-${obj.word.toLowerCase()}`;
-                div.innerText = `${obj.emoji} ${obj.word}`;
+                // This lines up the emoji directly above the text
+                div.innerHTML = `<span style="font-size: 1.2rem; margin-bottom: 2px;">${obj.emoji}</span><span>${obj.word}</span>`;
                 wordBank.appendChild(div);
             });
             remainingWords = [...WORDS];
