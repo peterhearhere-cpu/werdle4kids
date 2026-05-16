@@ -19,10 +19,21 @@
         }
         h1 { color: #FF6B6B; font-size: 2.2rem; text-shadow: 2px 2px #FFD93D; margin: 10px 0; text-align: center; }
         
-        .grid { display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        /* Board container that can grow vertically */
+        .board-container {
+            max-height: 40vh;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 5px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: auto; }
         .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .tile {
-            width: 65px; height: 65px;
+            width: 60px; height: 60px;
             border: 3px solid #4D96FF; border-radius: 12px;
             background-color: white;
             font-size: 2rem; font-weight: bold; color: #333;
@@ -31,10 +42,26 @@
             transition: all 0.2s ease;
         }
         
+        /* Interactive feedback states */
         .correct { background-color: #6BCB77 !important; color: white; border-color: #55b061; transform: scale(1.05); }
         .present { background-color: #FFD93D !important; color: white; border-color: #e6c230; }
-        .absent { background-color: #D3D3D3 !important; color: #777; border-color: #b5b5b5; }
+        .absent { background-color: #D3D3D3 !important; color: #777; border-color: #b5b5b5; text-decoration: line-through; }
         
+        /* Visual Tracker Alphabet Pad */
+        .abc-container {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 4px; max-width: 400px; margin: 5px 0 15px 0;
+            background: rgba(255, 255, 255, 0.6); padding: 8px; border-radius: 10px;
+        }
+        .abc-letter {
+            width: 24px; height: 24px; border-radius: 4px;
+            background: #FFF; border: 1.5px solid #4D96FF;
+            font-size: 0.9rem; font-weight: bold; text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center; color: #4D96FF;
+            transition: all 0.2s ease;
+        }
+        
+        /* Keyboard Styles */
         .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; }
         .kbd-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
         .key {
@@ -68,7 +95,14 @@
 <body>
 
     <h1>✨ Werdle 4 Kids! ✨</h1>
-    <div class="grid" id="board"></div>
+    
+    <!-- Scrollable container for infinite rows -->
+    <div class="board-container">
+        <div class="grid" id="board"></div>
+    </div>
+
+    <!-- Visual Used-Letter Alphabet Tracker -->
+    <div class="abc-container" id="abc-tracker"></div>
     
     <div class="keyboard">
         <div class="kbd-row">
@@ -88,7 +122,8 @@
     <div id="win-overlay">
         <div class="pop-card">
             <h2>Hooray! 🎉</h2>
-            <div id="word-reveal" style="font-size: 1.5rem; font-weight: bold;"></div>
+            <div id="word-reveal" style="font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;"></div>
+            <div id="attempt-counter" style="font-size: 1.2rem; color: #4D96FF; font-weight: bold;"></div>
             <div class="big-emoji" id="win-emoji">🐱</div>
             <button class="btn-next" onclick="resetGame()">Play Again! 🌟</button>
         </div>
@@ -100,35 +135,61 @@
             { word: "pig", emoji: "🐷" }, { word: "fox", emoji: "🦊" }, { word: "hat", emoji: "🎩" },
             { word: "bus", emoji: "🚌" }, { word: "bed", emoji: "🛏️" }, { word: "cup", emoji: "🥤" },
             { word: "car", emoji: "🚗" }, { word: "cow", emoji: "🐮" }, { word: "owl", emoji: "🦉" },
-            { word: "bee", emoji: "🐝" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" }
+            { word: "bee", emoji: "🐝" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" },
+            { word: "map", emoji: "🗺️" }, { word: "fly", emoji: "🪰" }, { word: "net", emoji: "🕸️" },
+            { word: "fan", emoji: "🪭" }, { word: "ice", emoji: "🧊" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
-        let guesses = ["", "", "", ""];
+        let totalAttempts = 0;
+        let currentGuess = "";
+        const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
         
         function initGame() {
-            const board = document.getElementById('board');
-            board.innerHTML = '';
-            for (let i = 0; i < 4; i++) {
-                let row = document.createElement('div');
-                row.className = 'row';
-                for (let j = 0; j < 3; j++) {
-                    let tile = document.createElement('div');
-                    tile.className = 'tile';
-                    tile.id = `tile-${i}-${j}`;
-                    row.appendChild(tile);
-                }
-                board.appendChild(row);
-            }
+            document.getElementById('board').innerHTML = '';
+            currentRow = 0;
+            currentTile = 0;
+            totalAttempts = 0;
+            currentGuess = "";
+            gameOver = false;
+            document.getElementById('win-overlay').style.display = 'none';
             
+            // Choose word
             let picked = WORDS[Math.floor(Math.random() * WORDS.length)];
             targetWord = picked.word.toLowerCase();
             targetEmoji = picked.emoji;
-            currentRow = 0;
-            currentTile = 0;
-            guesses = ["", "", "", ""];
-            gameOver = false;
-            document.getElementById('win-overlay').style.display = 'none';
+            
+            // Create first active guessing row
+            addNewRow();
+            
+            // Render Fresh Alphabet Tracker
+            const tracker = document.getElementById('abc-tracker');
+            tracker.innerHTML = '';
+            alphabet.forEach(letter => {
+                let node = document.createElement('div');
+                node.className = 'abc-letter';
+                node.id = `abc-${letter}`;
+                node.innerText = letter;
+                tracker.appendChild(node);
+            });
+        }
+
+        function addNewRow() {
+            const board = document.getElementById('board');
+            let row = document.createElement('div');
+            row.className = 'row';
+            row.id = `row-${currentRow}`;
+            for (let j = 0; j < 3; j++) {
+                let tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.id = `tile-${currentRow}-${j}`;
+                row.appendChild(tile);
+            }
+            board.appendChild(row);
+            
+            // Auto scroll container downward to keep current row visible
+            const container = document.querySelector('.board-container');
+            container.scrollTop = container.scrollHeight;
         }
 
         function press(key) {
@@ -137,16 +198,16 @@
             if (key === 'BACK') {
                 if (currentTile > 0) {
                     currentTile--;
-                    guesses[currentRow] = guesses[currentRow].slice(0, -1);
+                    currentGuess = currentGuess.slice(0, -1);
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = '';
                 }
             } else if (key === 'ENTER') {
-                if (guesses[currentRow].length === 3) {
+                if (currentGuess.length === 3) {
                     checkRow();
                 }
             } else if (/^[a-z]$/i.test(key)) {
                 if (currentTile < 3) {
-                    guesses[currentRow] += key.toLowerCase();
+                    currentGuess += key.toLowerCase();
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
                     currentTile++;
                 }
@@ -154,20 +215,29 @@
         }
 
         function checkRow() {
-            let guess = guesses[currentRow];
             let rightCount = 0;
+            totalAttempts++;
             
             for (let i = 0; i < 3; i++) {
                 let tile = document.getElementById(`tile-${currentRow}-${i}`);
-                let letter = guess[i];
+                let letter = currentGuess[i];
+                let abcNode = document.getElementById(`abc-${letter}`);
                 
                 if (targetWord[i] === letter) {
                     tile.classList.add('correct');
+                    if (abcNode) { abcNode.className = 'abc-letter correct'; }
                     rightCount++;
                 } else if (targetWord.includes(letter)) {
                     tile.classList.add('present');
+                    // Only update tracker layout to yellow if it isn't already green
+                    if (abcNode && !abcNode.classList.contains('correct')) {
+                        abcNode.className = 'abc-letter present';
+                    }
                 } else {
                     tile.classList.add('absent');
+                    if (abcNode && !abcNode.classList.contains('correct') && !abcNode.classList.contains('present')) {
+                        abcNode.className = 'abc-letter absent';
+                    }
                 }
             }
             
@@ -175,27 +245,23 @@
                 gameOver = true;
                 setTimeout(() => {
                     document.getElementById('word-reveal').innerText = `You spelled ${targetWord.toUpperCase()}!`;
+                    document.getElementById('attempt-counter').innerText = `It took ${totalAttempts} ${totalAttempts === 1 ? 'try' : 'tries'}! ⭐`;
                     document.getElementById('win-emoji').innerText = targetEmoji;
                     document.getElementById('win-overlay').style.display = 'flex';
                 }, 500);
                 return;
             }
             
+            // Move to next row cleanly without caps limits
             currentRow++;
             currentTile = 0;
-            
-            if (currentRow === 4) {
-                gameOver = true;
-                setTimeout(() => {
-                    alert(`Nice try! The word was ${targetWord.toUpperCase()}!`);
-                    initGame();
-                }, 500);
-            }
+            currentGuess = "";
+            addNewRow();
         }
 
         function resetGame() { initGame(); }
         
-        // Start on load
+        // Initial Trigger
         initGame();
     </script>
 </body>
