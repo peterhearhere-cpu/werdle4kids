@@ -18,10 +18,10 @@
             box-sizing: border-box;
         }
         
-        /* Header & Music Toggle - FIXED FOR LONG TITLES */
+        /* Header & Music Toggle */
         .header-bar { 
             display: flex; 
-            flex-direction: column; /* Stacks the title and button on top of each other */
+            flex-direction: column; 
             align-items: center; 
             width: 100%; 
             max-width: 400px; 
@@ -33,7 +33,7 @@
             font-size: 1.8rem; 
             text-shadow: 2px 2px #FFD93D; 
             margin: 0; 
-            text-align: center; /* Ensures the text is perfectly centered */
+            text-align: center; 
             line-height: 1.2;
         }
         #music-btn {
@@ -83,12 +83,12 @@
             display: flex; align-items: center; justify-content: center; color: #4D96FF;
         }
 
-        /* FULL VIEW Word Bank - FIXED TO 5 COLUMNS */
+        /* FULL VIEW Word Bank */
         .word-bank-wrapper { max-width: 450px; margin-top: 15px; width: 100%; padding-bottom: 20px; }
         .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 10px 0; font-size: 1.2rem; }
         .word-bank {
             display: grid; 
-            grid-template-columns: repeat(5, 1fr); /* Forces exactly 5 words across */
+            grid-template-columns: repeat(5, 1fr); 
             gap: 4px;
             background: white; border: 3px dashed #FFD93D; border-radius: 15px;
             padding: 8px; 
@@ -99,12 +99,18 @@
             font-size: 0.75rem; font-weight: bold; background: #FFF9E6; color: #333;
             padding: 4px 2px; border-radius: 6px; border: 1px solid #FFD93D;
             transition: all 0.3s ease;
-            display: flex; flex-direction: column; /* Stacks emoji above the word */
+            display: flex; flex-direction: column; 
             align-items: center; justify-content: center; text-align: center;
         }
+        
+        /* The specific CSS fix to properly cross out flexbox items */
         .word-item.found {
-            text-decoration: line-through; opacity: 0.3;
+            opacity: 0.4;
             background: #e0e0e0; border-color: #b5b5b5;
+        }
+        .word-item.found .word-text {
+            text-decoration: line-through;
+            color: #FF6B6B; /* Turns the struck-through text red to make it obvious */
         }
 
         /* Celebration Screen */
@@ -173,23 +179,24 @@
         const WORDS = [
             { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "bag", emoji: "🎒" },
             { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, { word: "bee", emoji: "🐝" },
-            { word: "boo", emoji: "👻" }, { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, 
-            { word: "bug", emoji: "🐛" }, { word: "bum", emoji: "🍑" }, { word: "bun", emoji: "🥯" }, 
-            { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, { word: "car", emoji: "🚗" }, 
-            { word: "cat", emoji: "🐱" }, { word: "cog", emoji: "⚙️" }, { word: "cow", emoji: "🐮" }, 
-            { word: "cup", emoji: "🥤" }, { word: "dog", emoji: "🐶" }, { word: "egg", emoji: "🥚" }, 
-            { word: "fan", emoji: "🪭" }, { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, 
-            { word: "gem", emoji: "💎" }, { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, 
-            { word: "ice", emoji: "🧊" }, { word: "jam", emoji: "🍓" }, { word: "jar", emoji: "🫙" }, 
-            { word: "jet", emoji: "🛩️" }, { word: "key", emoji: "🔑" }, { word: "lip", emoji: "👄" }, 
-            { word: "log", emoji: "🪵" }, { word: "map", emoji: "🗺️" }, { word: "mop", emoji: "🧹" }, 
-            { word: "mug", emoji: "🍺" }, { word: "net", emoji: "🕸️" }, { word: "nut", emoji: "🥜" }, 
-            { word: "owl", emoji: "🦉" }, { word: "pea", emoji: "🫛" }, { word: "pen", emoji: "🖊️" }, 
-            { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, { word: "poo", emoji: "💩" }, 
-            { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, { word: "rug", emoji: "🧺" },
-            { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, { word: "sun", emoji: "☀️" },
-            { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, { word: "try", emoji: "🙂" },
-            { word: "web", emoji: "🕸️" }, { word: "wee", emoji: "🚽" }
+            { word: "boa", emoji: "🐍" }, { word: "boo", emoji: "👻" }, { word: "bow", emoji: "🎀" }, 
+            { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" }, { word: "bum", emoji: "🍑" }, 
+            { word: "bun", emoji: "🥯" }, { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, 
+            { word: "car", emoji: "🚗" }, { word: "cat", emoji: "🐱" }, { word: "cog", emoji: "⚙️" }, 
+            { word: "cow", emoji: "🐮" }, { word: "cup", emoji: "🥤" }, { word: "dog", emoji: "🐶" }, 
+            { word: "egg", emoji: "🥚" }, { word: "fan", emoji: "🪭" }, { word: "fly", emoji: "🪰" }, 
+            { word: "fox", emoji: "🦊" }, { word: "gem", emoji: "💎" }, { word: "hat", emoji: "🎩" }, 
+            { word: "hen", emoji: "🐔" }, { word: "ice", emoji: "🧊" }, { word: "jam", emoji: "🍓" }, 
+            { word: "jar", emoji: "🫙" }, { word: "jet", emoji: "🛩️" }, { word: "key", emoji: "🔑" }, 
+            { word: "lip", emoji: "👄" }, { word: "log", emoji: "🪵" }, { word: "map", emoji: "🗺️" }, 
+            { word: "mop", emoji: "🧹" }, { word: "mug", emoji: "🍺" }, { word: "net", emoji: "🕸️" }, 
+            { word: "nut", emoji: "🥜" }, { word: "owl", emoji: "🦉" }, { word: "pea", emoji: "🫛" }, 
+            { word: "pen", emoji: "🖊️" }, { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, 
+            { word: "poo", emoji: "💩" }, { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, 
+            { word: "rug", emoji: "🧺" }, { word: "sea", emoji: "🌊" }, { word: "see", emoji: "👁️" }, 
+            { word: "sit", emoji: "🪑" }, { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, 
+            { word: "sun", emoji: "☀️" }, { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, 
+            { word: "try", emoji: "🙂" }, { word: "web", emoji: "🕸️" }, { word: "wee", emoji: "🚽" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
@@ -288,8 +295,8 @@
                 let div = document.createElement('div');
                 div.className = 'word-item';
                 div.id = `wb-${obj.word.toLowerCase()}`;
-                // This lines up the emoji directly above the text
-                div.innerHTML = `<span style="font-size: 1.2rem; margin-bottom: 2px;">${obj.emoji}</span><span>${obj.word}</span>`;
+                // Added a specific class "word-text" to the span so we can cross it out cleanly
+                div.innerHTML = `<span style="font-size: 1.2rem; margin-bottom: 2px;">${obj.emoji}</span><span class="word-text">${obj.word}</span>`;
                 wordBank.appendChild(div);
             });
             remainingWords = [...WORDS];
@@ -406,6 +413,7 @@
             if (rightCount === 3) {
                 gameOver = true;
                 
+                // Triggers the CSS class that strikes out the specific word text
                 let foundItem = document.getElementById(`wb-${targetWord}`);
                 if (foundItem) {
                     foundItem.classList.add('found');
