@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Werdle 4 Kids! ✨</title>
+    <title>Wordle 4 Autumn & Layla✨</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
@@ -29,7 +29,7 @@
         
         /* Board Layout */
         .board-container {
-            max-height: 30vh; overflow-y: auto; margin-bottom: 5px;
+            max-height: 25vh; overflow-y: auto; margin-bottom: 5px;
             padding: 5px; width: 100%; display: flex; flex-direction: column; align-items: center;
         }
         .grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: auto; }
@@ -67,25 +67,24 @@
             display: flex; align-items: center; justify-content: center; color: #4D96FF;
         }
 
-        /* Word Bank */
-        .word-bank-wrapper { max-width: 400px; margin-top: 15px; width: 100%; }
-        .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 5px 0; font-size: 1.2rem; }
+        /* FULL VIEW Word Bank */
+        .word-bank-wrapper { max-width: 450px; margin-top: 15px; width: 100%; padding-bottom: 20px; }
+        .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 10px 0; font-size: 1.2rem; }
         .word-bank {
             display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
             background: white; border: 3px dashed #FFD93D; border-radius: 15px;
-            padding: 10px; max-height: 150px; overflow-y: auto;
+            padding: 15px; 
+            /* Removed max-height so it shows all words automatically */
+            height: auto; 
         }
         .word-item {
             font-size: 1rem; font-weight: bold; background: #FFF9E6; color: #333;
-            padding: 4px 8px; border-radius: 8px; border: 1px solid #FFD93D;
+            padding: 5px 10px; border-radius: 8px; border: 1px solid #FFD93D;
             transition: all 0.3s ease;
         }
-        /* Style for crossed-off words */
         .word-item.found {
-            text-decoration: line-through;
-            opacity: 0.4;
-            background: #e0e0e0;
-            border-color: #b5b5b5;
+            text-decoration: line-through; opacity: 0.3;
+            background: #e0e0e0; border-color: #b5b5b5;
         }
 
         /* Celebration Screen */
@@ -133,7 +132,7 @@
 
     <div class="abc-container" id="abc-tracker"></div>
     
-    <!-- Word Bank Display -->
+    <!-- Expanded Word Bank Display -->
     <div class="word-bank-wrapper">
         <h3>Words to find! 🔍</h3>
         <div class="word-bank" id="word-bank-list"></div>
@@ -151,12 +150,14 @@
     </div>
 
     <script>
+        // Full word list with new additions!
         const WORDS = [
             { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "bag", emoji: "🎒" },
             { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, { word: "bee", emoji: "🐝" },
-            { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" },
-            { word: "bum", emoji: "🍑" }, { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, 
-            { word: "car", emoji: "🚗" }, { word: "cat", emoji: "🐱" }, { word: "cow", emoji: "🐮" }, 
+            { word: "boo", emoji: "👻" }, { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, 
+            { word: "bug", emoji: "🐛" }, { word: "bum", emoji: "🍑" }, { word: "bun", emoji: "🥯" }, 
+            { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, { word: "car", emoji: "🚗" }, 
+            { word: "cat", emoji: "🐱" }, { word: "cog", emoji: "⚙️" }, { word: "cow", emoji: "🐮" }, 
             { word: "cup", emoji: "🥤" }, { word: "dog", emoji: "🐶" }, { word: "egg", emoji: "🥚" }, 
             { word: "fan", emoji: "🪭" }, { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, 
             { word: "gem", emoji: "💎" }, { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, 
@@ -168,8 +169,8 @@
             { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, { word: "poo", emoji: "💩" }, 
             { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, { word: "rug", emoji: "🧺" },
             { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, { word: "sun", emoji: "☀️" },
-            { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, { word: "web", emoji: "🕸️" },
-            { word: "wee", emoji: "🚽" }
+            { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, { word: "try", emoji: "🙂" },
+            { word: "web", emoji: "🕸️" }, { word: "wee", emoji: "🚽" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
@@ -178,9 +179,10 @@
         let remainingWords = [];
         const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
         
-        // --- Web Audio Synthesizer Engine ---
+        // --- Dual-Voice Web Audio Engine ---
         let audioCtx = null;
-        function playNote(freq, type, duration, vol = 0.15) {
+        function playNote(freq, type, duration, vol = 0.1) {
+            if (!freq) return; // Allow rests
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -192,7 +194,8 @@
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 
                 gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                // Slight envelope to mimic hardware decay
+                gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + (duration * 0.8), 0.05);
                 
                 osc.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
@@ -205,32 +208,46 @@
         function playWinMelody() {
             const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
             notes.forEach((freq, index) => {
-                setTimeout(() => playNote(freq, 'square', 0.2, 0.2), index * 100);
+                setTimeout(() => playNote(freq, 'square', 0.2, 0.15), index * 100);
             });
         }
 
-        // --- Upgraded Retro Tetris BGM Sequencer ---
+        // --- Amiga Tracker Module (Wally Beben Intro Sequence) ---
         let bgmInterval;
         let bgmPlaying = false;
         
-        const tetrisNotes = { 'E5': 659.25, 'B4': 493.88, 'C5': 523.25, 'D5': 587.33, 'A4': 440.00 };
-        const tetrisMelody = [
-            ['E5', 4], ['B4', 2], ['C5', 2], ['D5', 4], ['C5', 2], ['B4', 2],
-            ['A4', 4], ['A4', 2], ['C5', 2], ['E5', 4], ['D5', 2], ['C5', 2],
-            ['B4', 6], ['C5', 2], ['D5', 4], ['E5', 4],
-            ['C5', 4], ['A4', 4], ['A4', 8] 
+        // Frequencies for the dark Amiga intro
+        const n = { 
+            C2: 65.41, Eb2: 77.78, F2: 87.31, G2: 98.00, Bb2: 116.54, 
+            C3: 130.81, D3: 146.83, Eb3: 155.56, G3: 196.00,
+            C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00
+        };
+
+        // Dual-track sequencer: [Melody Note, Bass Note, Ticks Duration]
+        // This mimics the iconic atmospheric start of the Amiga version!
+        const amigaSequence = [
+            [null, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
+            [n.G4, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
+            [n.F4, n.F2, 2], [n.D4, n.F2, 2], [null, n.F3, 4], [null, n.C3, 4], [null, n.G2, 4],
+            [n.C4, n.C2, 2], [n.D4, n.C2, 2], [n.Eb4, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
+            [n.D4, n.Bb2, 4], [null, n.Bb3, 4], [n.C4, n.F2, 4], [null, n.F3, 4],
+            [n.C4, n.C2, 8], [null, n.C3, 4], [null, n.G2, 4]
         ];
         
         let noteIdx = 0;
-        let beatLength = 75; 
+        let beatLength = 110; // Tracker speed
 
         function stepBGM() {
             if (!bgmPlaying) return;
-            let [note, beats] = tetrisMelody[noteIdx];
-            playNote(tetrisNotes[note], 'square', (beats * beatLength)/1000, 0.04); 
+            let [melody, bass, ticks] = amigaSequence[noteIdx];
             
-            noteIdx = (noteIdx + 1) % tetrisMelody.length;
-            bgmInterval = setTimeout(stepBGM, beats * beatLength);
+            // Channel 1: Square wave lead (like the Amiga Paula chip)
+            if (melody) playNote(melody, 'square', (ticks * beatLength)/1000, 0.04); 
+            // Channel 2: Sawtooth bass (for that heavy, fuzzy low end)
+            if (bass) playNote(bass, 'sawtooth', (ticks * beatLength)/1000, 0.08);
+            
+            noteIdx = (noteIdx + 1) % amigaSequence.length;
+            bgmInterval = setTimeout(stepBGM, ticks * beatLength);
         }
 
         function toggleMusic() {
@@ -252,6 +269,9 @@
         function setupWordBank() {
             const wordBank = document.getElementById('word-bank-list');
             wordBank.innerHTML = '';
+            // Sort words alphabetically for easier searching
+            WORDS.sort((a, b) => a.word.localeCompare(b.word));
+            
             WORDS.forEach(obj => {
                 let div = document.createElement('div');
                 div.className = 'word-item';
@@ -269,12 +289,10 @@
             currentGuess = ""; gameOver = false;
             document.getElementById('win-overlay').style.display = 'none';
             
-            // If they exhausted all words, reset the deck and the word bank UI
             if (remainingWords.length === 0) {
                 setupWordBank();
             }
             
-            // Pull a random word from the remaining deck
             let randomIndex = Math.floor(Math.random() * remainingWords.length);
             let picked = remainingWords.splice(randomIndex, 1)[0];
             
@@ -316,7 +334,7 @@
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             
             if (key === 'BACK') {
-                playNote(220, 'square', 0.1, 0.1); 
+                playNote(220, 'square', 0.1, 0.05); 
                 if (currentTile > 0) {
                     currentTile--;
                     currentGuess = currentGuess.slice(0, -1);
@@ -331,7 +349,7 @@
             } else if (/^[a-z]$/i.test(key)) {
                 if (currentTile < 3) {
                     const letterPitches = [440, 523, 659];
-                    playNote(letterPitches[currentTile], 'square', 0.1, 0.1);
+                    playNote(letterPitches[currentTile], 'square', 0.1, 0.05);
                     
                     currentGuess += key.toLowerCase();
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
@@ -375,7 +393,6 @@
             if (rightCount === 3) {
                 gameOver = true;
                 
-                // Cross the word off the master list visually
                 let foundItem = document.getElementById(`wb-${targetWord}`);
                 if (foundItem) {
                     foundItem.classList.add('found');
@@ -391,7 +408,7 @@
                 return;
             }
             
-            playNote(400, 'square', 0.1, 0.1);
+            playNote(400, 'square', 0.1, 0.05);
             
             currentRow++;
             currentTile = 0;
@@ -401,7 +418,6 @@
 
         function resetGame() { initGame(); }
         
-        // Initial Startup
         setupWordBank();
         initGame();
     </script>
