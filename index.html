@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Werdle 4 Kids! ✨</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-color: #FFF9E6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        h1 { color: #FF6B6B; font-size: 2.2rem; text-shadow: 2px 2px #FFD93D; margin: 10px 0; text-align: center; }
+        
+        .grid { display: grid; grid-template-rows: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .tile {
+            width: 65px; height: 65px;
+            border: 3px solid #4D96FF; border-radius: 12px;
+            background-color: white;
+            font-size: 2rem; font-weight: bold; color: #333;
+            display: flex; align-items: center; justify-content: center;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+        
+        .correct { background-color: #6BCB77 !important; color: white; border-color: #55b061; transform: scale(1.05); }
+        .present { background-color: #FFD93D !important; color: white; border-color: #e6c230; }
+        .absent { background-color: #D3D3D3 !important; color: #777; border-color: #b5b5b5; }
+        
+        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; }
+        .kbd-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
+        .key {
+            flex: 1; padding: 14px 0; background-color: #4D96FF; color: white;
+            border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; box-shadow: 0 4px #3578E5;
+            text-align: center; -webkit-tap-highlight-color: transparent;
+        }
+        .key:active { transform: translateY(2px); box-shadow: 0 2px #3578E5; }
+        .wide-key { flex: 1.5; background-color: #FF6B6B; box-shadow: 0 4px #E55353; font-size: 0.9rem; }
+        .wide-key:active { box-shadow: 0 2px #E55353; }
+        
+        /* Win Pop-up Box */
+        #win-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10;
+        }
+        .pop-card {
+            background: white; padding: 30px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 5px solid #FFD93D; max-width: 80%;
+        }
+        .pop-card h2 { color: #6BCB77; font-size: 2.5rem; margin: 0 0 10px 0; }
+        .pop-card .big-emoji { font-size: 5rem; margin: 15px 0; animation: bounce 0.6s infinite alternate; }
+        .btn-next {
+            padding: 12px 25px; font-size: 1.3rem; font-weight: bold; background: #FF6B6B;
+            color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px #E55353;
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
+    </style>
+</head>
+<body>
+
+    <h1>✨ Werdle 4 Kids! ✨</h1>
+    <div class="grid" id="board"></div>
+    
+    <div class="keyboard">
+        <div class="kbd-row">
+            <button class="key" onclick="press('q')">q</button><button class="key" onclick="press('w')">w</button><button class="key" onclick="press('e')">e</button><button class="key" onclick="press('r')">r</button><button class="key" onclick="press('t')">t</button><button class="key" onclick="press('y')">y</button><button class="key" onclick="press('u')">u</button><button class="key" onclick="press('i')">i</button><button class="key" onclick="press('o')">o</button><button class="key" onclick="press('p')">p</button>
+        </div>
+        <div class="kbd-row">
+            <button class="key" onclick="press('a')">a</button><button class="key" onclick="press('s')">s</button><button class="key" onclick="press('d')">d</button><button class="key" onclick="press('f')">f</button><button class="key" onclick="press('g')">g</button><button class="key" onclick="press('h')">h</button><button class="key" onclick="press('j')">j</button><button class="key" onclick="press('k')">k</button><button class="key" onclick="press('l')">l</button>
+        </div>
+        <div class="kbd-row">
+            <button class="key wide-key" onclick="press('ENTER')">GO!</button>
+            <button class="key" onclick="press('z')">z</button><button class="key" onclick="press('x')">x</button><button class="key" onclick="press('c')">c</button><button class="key" onclick="press('v')">v</button><button class="key" onclick="press('b')">b</button><button class="key" onclick="press('n')">n</button><button class="key" onclick="press('m')">m</button>
+            <button class="key wide-key" onclick="press('BACK')">⌫</button>
+        </div>
+    </div>
+
+    <!-- Celebration Screen -->
+    <div id="win-overlay">
+        <div class="pop-card">
+            <h2>Hooray! 🎉</h2>
+            <div id="word-reveal" style="font-size: 1.5rem; font-weight: bold;"></div>
+            <div class="big-emoji" id="win-emoji">🐱</div>
+            <button class="btn-next" onclick="resetGame()">Play Again! 🌟</button>
+        </div>
+    </div>
+
+    <script>
+        const WORDS = [
+            { word: "cat", emoji: "🐱" }, { word: "dog", emoji: "🐶" }, { word: "sun", emoji: "☀️" }, 
+            { word: "pig", emoji: "🐷" }, { word: "fox", emoji: "🦊" }, { word: "hat", emoji: "🎩" },
+            { word: "bus", emoji: "🚌" }, { word: "bed", emoji: "🛏️" }, { word: "cup", emoji: "🥤" },
+            { word: "car", emoji: "🚗" }, { word: "cow", emoji: "🐮" }, { word: "owl", emoji: "🦉" },
+            { word: "bee", emoji: "🐝" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" }
+        ];
+        
+        let targetWord, targetEmoji, currentRow, currentTile, gameOver;
+        let guesses = ["", "", "", ""];
+        
+        function initGame() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 0; i < 4; i++) {
+                let row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < 3; j++) {
+                    let tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = `tile-${i}-${j}`;
+                    row.appendChild(tile);
+                }
+                board.appendChild(row);
+            }
+            
+            let picked = WORDS[Math.floor(Math.random() * WORDS.length)];
+            targetWord = picked.word.toLowerCase();
+            targetEmoji = picked.emoji;
+            currentRow = 0;
+            currentTile = 0;
+            guesses = ["", "", "", ""];
+            gameOver = false;
+            document.getElementById('win-overlay').style.display = 'none';
+        }
+
+        function press(key) {
+            if (gameOver) return;
+            
+            if (key === 'BACK') {
+                if (currentTile > 0) {
+                    currentTile--;
+                    guesses[currentRow] = guesses[currentRow].slice(0, -1);
+                    document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = '';
+                }
+            } else if (key === 'ENTER') {
+                if (guesses[currentRow].length === 3) {
+                    checkRow();
+                }
+            } else if (/^[a-z]$/i.test(key)) {
+                if (currentTile < 3) {
+                    guesses[currentRow] += key.toLowerCase();
+                    document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
+                    currentTile++;
+                }
+            }
+        }
+
+        function checkRow() {
+            let guess = guesses[currentRow];
+            let rightCount = 0;
+            
+            for (let i = 0; i < 3; i++) {
+                let tile = document.getElementById(`tile-${currentRow}-${i}`);
+                let letter = guess[i];
+                
+                if (targetWord[i] === letter) {
+                    tile.classList.add('correct');
+                    rightCount++;
+                } else if (targetWord.includes(letter)) {
+                    tile.classList.add('present');
+                } else {
+                    tile.classList.add('absent');
+                }
+            }
+            
+            if (rightCount === 3) {
+                gameOver = true;
+                setTimeout(() => {
+                    document.getElementById('word-reveal').innerText = `You spelled ${targetWord.toUpperCase()}!`;
+                    document.getElementById('win-emoji').innerText = targetEmoji;
+                    document.getElementById('win-overlay').style.display = 'flex';
+                }, 500);
+                return;
+            }
+            
+            currentRow++;
+            currentTile = 0;
+            
+            if (currentRow === 4) {
+                gameOver = true;
+                setTimeout(() => {
+                    alert(`Nice try! The word was ${targetWord.toUpperCase()}!`);
+                    initGame();
+                }, 500);
+            }
+        }
+
+        function resetGame() { initGame(); }
+        
+        // Start on load
+        initGame();
+    </script>
+</body>
+</html>
