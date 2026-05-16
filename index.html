@@ -17,13 +17,13 @@
             padding: 10px;
             box-sizing: border-box;
         }
-        h1 { color: #FF6B6B; font-size: 2.2rem; text-shadow: 2px 2px #FFD93D; margin: 10px 0; text-align: center; }
+        h1 { color: #FF6B6B; font-size: 2.2rem; text-shadow: 2px 2px #FFD93D; margin: 5px 0; text-align: center; }
         
-        /* Board container that can grow vertically */
+        /* Layout Ordering */
         .board-container {
-            max-height: 40vh;
+            max-height: 35vh;
             overflow-y: auto;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             padding: 5px;
             width: 100%;
             display: flex;
@@ -42,27 +42,12 @@
             transition: all 0.2s ease;
         }
         
-        /* Interactive feedback states */
         .correct { background-color: #6BCB77 !important; color: white; border-color: #55b061; transform: scale(1.05); }
         .present { background-color: #FFD93D !important; color: white; border-color: #e6c230; }
         .absent { background-color: #D3D3D3 !important; color: #777; border-color: #b5b5b5; text-decoration: line-through; }
         
-        /* Visual Tracker Alphabet Pad */
-        .abc-container {
-            display: flex; flex-wrap: wrap; justify-content: center;
-            gap: 4px; max-width: 400px; margin: 5px 0 15px 0;
-            background: rgba(255, 255, 255, 0.6); padding: 8px; border-radius: 10px;
-        }
-        .abc-letter {
-            width: 24px; height: 24px; border-radius: 4px;
-            background: #FFF; border: 1.5px solid #4D96FF;
-            font-size: 0.9rem; font-weight: bold; text-transform: uppercase;
-            display: flex; align-items: center; justify-content: center; color: #4D96FF;
-            transition: all 0.2s ease;
-        }
-        
-        /* Keyboard Styles */
-        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; }
+        /* Virtual Keyboard Styles */
+        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; margin-bottom: 10px; }
         .kbd-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
         .key {
             flex: 1; padding: 14px 0; background-color: #4D96FF; color: white;
@@ -72,9 +57,21 @@
         }
         .key:active { transform: translateY(2px); box-shadow: 0 2px #3578E5; }
         .wide-key { flex: 1.5; background-color: #FF6B6B; box-shadow: 0 4px #E55353; font-size: 0.9rem; }
-        .wide-key:active { box-shadow: 0 2px #E55353; }
         
-        /* Win Pop-up Box */
+        /* Alphabet Tracker moved to bottom */
+        .abc-container {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 4px; max-width: 400px; margin-top: 5px;
+            background: rgba(255, 255, 255, 0.6); padding: 8px; border-radius: 10px;
+        }
+        .abc-letter {
+            width: 23px; height: 23px; border-radius: 4px;
+            background: #FFF; border: 1.5px solid #4D96FF;
+            font-size: 0.85rem; font-weight: bold; text-transform: uppercase;
+            display: flex; align-items: center; justify-content: center; color: #4D96FF;
+        }
+
+        /* Celebration Screen */
         #win-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10;
@@ -96,14 +93,12 @@
 
     <h1>✨ Werdle 4 Kids! ✨</h1>
     
-    <!-- Scrollable container for infinite rows -->
+    <!-- 1. Attempt boxes -->
     <div class="board-container">
         <div class="grid" id="board"></div>
     </div>
 
-    <!-- Visual Used-Letter Alphabet Tracker -->
-    <div class="abc-container" id="abc-tracker"></div>
-    
+    <!-- 2. Interactive keyboard directly underneath -->
     <div class="keyboard">
         <div class="kbd-row">
             <button class="key" onclick="press('q')">q</button><button class="key" onclick="press('w')">w</button><button class="key" onclick="press('e')">e</button><button class="key" onclick="press('r')">r</button><button class="key" onclick="press('t')">t</button><button class="key" onclick="press('y')">y</button><button class="key" onclick="press('u')">u</button><button class="key" onclick="press('i')">i</button><button class="key" onclick="press('o')">o</button><button class="key" onclick="press('p')">p</button>
@@ -118,7 +113,10 @@
         </div>
     </div>
 
-    <!-- Celebration Screen -->
+    <!-- 3. Alphabet Tracker moved to bottom row -->
+    <div class="abc-container" id="abc-tracker"></div>
+    
+    <!-- Celebration Overlay -->
     <div id="win-overlay">
         <div class="pop-card">
             <h2>Hooray! 🎉</h2>
@@ -130,6 +128,7 @@
     </div>
 
     <script>
+        // Massive list of kid-friendly 3 letter words mapped with perfect emoji pictures
         const WORDS = [
             { word: "cat", emoji: "🐱" }, { word: "dog", emoji: "🐶" }, { word: "sun", emoji: "☀️" }, 
             { word: "pig", emoji: "🐷" }, { word: "fox", emoji: "🦊" }, { word: "hat", emoji: "🎩" },
@@ -137,7 +136,14 @@
             { word: "car", emoji: "🚗" }, { word: "cow", emoji: "🐮" }, { word: "owl", emoji: "🦉" },
             { word: "bee", emoji: "🐝" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" },
             { word: "map", emoji: "🗺️" }, { word: "fly", emoji: "🪰" }, { word: "net", emoji: "🕸️" },
-            { word: "fan", emoji: "🪭" }, { word: "ice", emoji: "🧊" }
+            { word: "fan", emoji: "🪭" }, { word: "ice", emoji: "🧊" }, { word: "bat", emoji: "🦇" },
+            { word: "bag", emoji: "🎒" }, { word: "key", emoji: "🔑" }, { word: "jam", emoji: "🍓" },
+            { word: "egg", emoji: "🥚" }, { word: "nut", emoji: "🥜" }, { word: "toy", emoji: "🧸" },
+            { word: "mop", emoji: "🧹" }, { word: "pin", emoji: "📌" }, { word: "pen", emoji: "🖊️" },
+            { word: "lip", emoji: "👄" }, { word: "jet", emoji: "🛩️" }, { word: "rug", emoji: "🪵" },
+            { word: "sub", emoji: " submarine 🚢" }, { word: "ant", emoji: "🐜" }, { word: "hen", emoji: "🐔" },
+            { word: "log", emoji: "🪵" }, { word: "mug", emoji: "🍺" }, { word: "pot", emoji: "🪴" },
+            { word: "web", emoji: "🕸️" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
@@ -145,6 +151,36 @@
         let currentGuess = "";
         const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
         
+        // Setup Simple Audio Synthesizer Engine
+        let audioCtx = null;
+        function playNote(freq, type, duration) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gainNode = audioCtx.createGain();
+                
+                osc.type = type || 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                // Smooth volume decay to mimic a real bell/instrument
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) { console.log("Audio not allowed yet"); }
+        }
+
+        function playWinMelody() {
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // Beautiful C Major Ascending Arpeggio
+            notes.forEach((freq, index) => {
+                setTimeout(() => playNote(freq, 'triangle', 0.4), index * 120);
+            });
+        }
+
         function initGame() {
             document.getElementById('board').innerHTML = '';
             currentRow = 0;
@@ -154,15 +190,12 @@
             gameOver = false;
             document.getElementById('win-overlay').style.display = 'none';
             
-            // Choose word
             let picked = WORDS[Math.floor(Math.random() * WORDS.length)];
             targetWord = picked.word.toLowerCase();
             targetEmoji = picked.emoji;
             
-            // Create first active guessing row
             addNewRow();
             
-            // Render Fresh Alphabet Tracker
             const tracker = document.getElementById('abc-tracker');
             tracker.innerHTML = '';
             alphabet.forEach(letter => {
@@ -187,7 +220,6 @@
             }
             board.appendChild(row);
             
-            // Auto scroll container downward to keep current row visible
             const container = document.querySelector('.board-container');
             container.scrollTop = container.scrollHeight;
         }
@@ -196,6 +228,7 @@
             if (gameOver) return;
             
             if (key === 'BACK') {
+                playNote(220, 'sine', 0.1); // Low tone for delete
                 if (currentTile > 0) {
                     currentTile--;
                     currentGuess = currentGuess.slice(0, -1);
@@ -204,15 +237,33 @@
             } else if (key === 'ENTER') {
                 if (currentGuess.length === 3) {
                     checkRow();
+                } else {
+                    playNote(150, 'sawtooth', 0.15); // Buzz tone if they hit enter too early
                 }
             } else if (/^[a-z]$/i.test(key)) {
                 if (currentTile < 3) {
+                    // Unique bright musical pitch for typing letters (C5, D5, E5 style notes)
+                    const letterPitches = [440, 494, 523, 587, 659, 698, 784];
+                    let randomPitch = letterPitches[currentTile * 2];
+                    playNote(randomPitch, 'triangle', 0.15);
+                    
                     currentGuess += key.toLowerCase();
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
                     currentTile++;
                 }
             }
         }
+
+        // Add support for Hardware/Manual Keyboards
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                press('ENTER');
+            } else if (e.key === 'Backspace') {
+                press('BACK');
+            } else if (/^[a-zA-Z]$/.test(e.key)) {
+                press(e.key.toLowerCase());
+            }
+        });
 
         function checkRow() {
             let rightCount = 0;
@@ -229,7 +280,6 @@
                     rightCount++;
                 } else if (targetWord.includes(letter)) {
                     tile.classList.add('present');
-                    // Only update tracker layout to yellow if it isn't already green
                     if (abcNode && !abcNode.classList.contains('correct')) {
                         abcNode.className = 'abc-letter present';
                     }
@@ -244,15 +294,18 @@
             if (rightCount === 3) {
                 gameOver = true;
                 setTimeout(() => {
+                    playWinMelody(); // Play cascading win sequence!
                     document.getElementById('word-reveal').innerText = `You spelled ${targetWord.toUpperCase()}!`;
                     document.getElementById('attempt-counter').innerText = `It took ${totalAttempts} ${totalAttempts === 1 ? 'try' : 'tries'}! ⭐`;
                     document.getElementById('win-emoji').innerText = targetEmoji;
                     document.getElementById('win-overlay').style.display = 'flex';
-                }, 500);
+                }, 400);
                 return;
             }
             
-            // Move to next row cleanly without caps limits
+            // Standard try chime (short ascending tick)
+            playNote(400, 'sine', 0.1);
+            
             currentRow++;
             currentTile = 0;
             currentGuess = "";
@@ -261,7 +314,6 @@
 
         function resetGame() { initGame(); }
         
-        // Initial Trigger
         initGame();
     </script>
 </body>
