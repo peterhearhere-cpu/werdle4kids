@@ -17,40 +17,37 @@
             padding: 10px;
             box-sizing: border-box;
         }
-        h1 { color: #FF6B6B; font-size: 2.2rem; text-shadow: 2px 2px #FFD93D; margin: 5px 0; text-align: center; }
         
-        /* Layout Ordering */
+        /* Header & Music Toggle */
+        .header-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 400px; margin-bottom: 5px; }
+        h1 { color: #FF6B6B; font-size: 2rem; text-shadow: 2px 2px #FFD93D; margin: 0; }
+        #music-btn {
+            background-color: #4D96FF; color: white; border: none; border-radius: 8px;
+            padding: 8px 12px; font-weight: bold; cursor: pointer; box-shadow: 0 3px #3578E5;
+        }
+        #music-btn:active { transform: translateY(2px); box-shadow: 0 1px #3578E5; }
+        
+        /* Board Layout */
         .board-container {
-            max-height: 35vh;
-            overflow-y: auto;
-            margin-bottom: 5px;
-            padding: 5px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            max-height: 30vh; overflow-y: auto; margin-bottom: 5px;
+            padding: 5px; width: 100%; display: flex; flex-direction: column; align-items: center;
         }
         .grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: auto; }
         .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .tile {
-            width: 60px; height: 60px;
-            border: 3px solid #4D96FF; border-radius: 12px;
-            background-color: white;
-            font-size: 2rem; font-weight: bold; color: #333;
-            display: flex; align-items: center; justify-content: center;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
+            width: 55px; height: 55px; border: 3px solid #4D96FF; border-radius: 12px;
+            background-color: white; font-size: 1.8rem; font-weight: bold; color: #333;
+            display: flex; align-items: center; justify-content: center; text-transform: uppercase;
         }
-        
         .correct { background-color: #6BCB77 !important; color: white; border-color: #55b061; transform: scale(1.05); }
         .present { background-color: #FFD93D !important; color: white; border-color: #e6c230; }
         .absent { background-color: #D3D3D3 !important; color: #777; border-color: #b5b5b5; text-decoration: line-through; }
         
-        /* Virtual Keyboard Styles */
-        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; margin-bottom: 10px; }
+        /* Keyboard */
+        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; }
         .kbd-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
         .key {
-            flex: 1; padding: 14px 0; background-color: #4D96FF; color: white;
+            flex: 1; padding: 12px 0; background-color: #4D96FF; color: white;
             border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold;
             cursor: pointer; text-transform: uppercase; box-shadow: 0 4px #3578E5;
             text-align: center; -webkit-tap-highlight-color: transparent;
@@ -58,17 +55,29 @@
         .key:active { transform: translateY(2px); box-shadow: 0 2px #3578E5; }
         .wide-key { flex: 1.5; background-color: #FF6B6B; box-shadow: 0 4px #E55353; font-size: 0.9rem; }
         
-        /* Alphabet Tracker moved to bottom */
+        /* Alphabet Tracker */
         .abc-container {
-            display: flex; flex-wrap: wrap; justify-content: center;
-            gap: 4px; max-width: 400px; margin-top: 5px;
-            background: rgba(255, 255, 255, 0.6); padding: 8px; border-radius: 10px;
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;
+            max-width: 400px; margin-top: 5px; background: rgba(255,255,255,0.6);
+            padding: 8px; border-radius: 10px;
         }
         .abc-letter {
-            width: 23px; height: 23px; border-radius: 4px;
-            background: #FFF; border: 1.5px solid #4D96FF;
+            width: 23px; height: 23px; border-radius: 4px; background: #FFF; border: 1.5px solid #4D96FF;
             font-size: 0.85rem; font-weight: bold; text-transform: uppercase;
             display: flex; align-items: center; justify-content: center; color: #4D96FF;
+        }
+
+        /* Word Bank */
+        .word-bank-wrapper { max-width: 400px; margin-top: 15px; width: 100%; }
+        .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 5px 0; font-size: 1.2rem; }
+        .word-bank {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            background: white; border: 3px dashed #FFD93D; border-radius: 15px;
+            padding: 10px; max-height: 150px; overflow-y: auto;
+        }
+        .word-item {
+            font-size: 1rem; font-weight: bold; background: #FFF9E6; color: #333;
+            padding: 4px 8px; border-radius: 8px; border: 1px solid #FFD93D;
         }
 
         /* Celebration Screen */
@@ -91,14 +100,15 @@
 </head>
 <body>
 
-    <h1>✨ Werdle 4 Kids! ✨</h1>
+    <div class="header-bar">
+        <h1>✨ Werdle! ✨</h1>
+        <button id="music-btn" onclick="toggleMusic()">🎵 Music: OFF</button>
+    </div>
     
-    <!-- 1. Attempt boxes -->
     <div class="board-container">
         <div class="grid" id="board"></div>
     </div>
 
-    <!-- 2. Interactive keyboard directly underneath -->
     <div class="keyboard">
         <div class="kbd-row">
             <button class="key" onclick="press('q')">q</button><button class="key" onclick="press('w')">w</button><button class="key" onclick="press('e')">e</button><button class="key" onclick="press('r')">r</button><button class="key" onclick="press('t')">t</button><button class="key" onclick="press('y')">y</button><button class="key" onclick="press('u')">u</button><button class="key" onclick="press('i')">i</button><button class="key" onclick="press('o')">o</button><button class="key" onclick="press('p')">p</button>
@@ -113,10 +123,15 @@
         </div>
     </div>
 
-    <!-- 3. Alphabet Tracker moved to bottom row -->
     <div class="abc-container" id="abc-tracker"></div>
     
-    <!-- Celebration Overlay -->
+    <!-- Word Bank Display -->
+    <div class="word-bank-wrapper">
+        <h3>Words to find! 🔍</h3>
+        <div class="word-bank" id="word-bank-list"></div>
+    </div>
+
+    <!-- Celebration Screen -->
     <div id="win-overlay">
         <div class="pop-card">
             <h2>Hooray! 🎉</h2>
@@ -128,23 +143,23 @@
     </div>
 
     <script>
-        // Massive list of kid-friendly 3 letter words mapped with perfect emoji pictures
         const WORDS = [
-            { word: "cat", emoji: "🐱" }, { word: "dog", emoji: "🐶" }, { word: "sun", emoji: "☀️" }, 
-            { word: "pig", emoji: "🐷" }, { word: "fox", emoji: "🦊" }, { word: "hat", emoji: "🎩" },
-            { word: "bus", emoji: "🚌" }, { word: "bed", emoji: "🛏️" }, { word: "cup", emoji: "🥤" },
-            { word: "car", emoji: "🚗" }, { word: "cow", emoji: "🐮" }, { word: "owl", emoji: "🦉" },
-            { word: "bee", emoji: "🐝" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" },
-            { word: "map", emoji: "🗺️" }, { word: "fly", emoji: "🪰" }, { word: "net", emoji: "🕸️" },
-            { word: "fan", emoji: "🪭" }, { word: "ice", emoji: "🧊" }, { word: "bat", emoji: "🦇" },
-            { word: "bag", emoji: "🎒" }, { word: "key", emoji: "🔑" }, { word: "jam", emoji: "🍓" },
-            { word: "egg", emoji: "🥚" }, { word: "nut", emoji: "🥜" }, { word: "toy", emoji: "🧸" },
-            { word: "mop", emoji: "🧹" }, { word: "pin", emoji: "📌" }, { word: "pen", emoji: "🖊️" },
-            { word: "lip", emoji: "👄" }, { word: "jet", emoji: "🛩️" }, { word: "rug", emoji: "🪵" },
-            { word: "sub", emoji: " submarine 🚢" }, { word: "ant", emoji: "🐜" }, { word: "hen", emoji: "🐔" },
-            { word: "log", emoji: "🪵" }, { word: "mug", emoji: "🍺" }, { word: "pot", emoji: "🪴" },
-            { word: "web", emoji: "🕸️" }, { word: "red", emoji: "🔴" }, { word: "box", emoji: "📦" },
-            { word: "run", emoji: "🏃‍♂️" }
+            { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "bag", emoji: "🎒" },
+            { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, { word: "bee", emoji: "🐝" },
+            { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" },
+            { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, { word: "car", emoji: "🚗" },
+            { word: "cat", emoji: "🐱" }, { word: "cow", emoji: "🐮" }, { word: "cup", emoji: "🥤" },
+            { word: "dog", emoji: "🐶" }, { word: "egg", emoji: "🥚" }, { word: "fan", emoji: "🪭" },
+            { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, { word: "gem", emoji: "💎" },
+            { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, { word: "ice", emoji: "🧊" },
+            { word: "jam", emoji: "🍓" }, { word: "jar", emoji: "🫙" }, { word: "jet", emoji: "🛩️" },
+            { word: "key", emoji: "🔑" }, { word: "lip", emoji: "👄" }, { word: "log", emoji: "🪵" },
+            { word: "map", emoji: "🗺️" }, { word: "mop", emoji: "🧹" }, { word: "mug", emoji: "🍺" },
+            { word: "net", emoji: "🕸️" }, { word: "nut", emoji: "🥜" }, { word: "owl", emoji: "🦉" },
+            { word: "pen", emoji: "🖊️" }, { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" },
+            { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, { word: "rug", emoji: "🧺" },
+            { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, { word: "sun", emoji: "☀️" },
+            { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, { word: "web", emoji: "🕸️" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
@@ -152,19 +167,20 @@
         let currentGuess = "";
         const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
         
-        // Setup Simple Audio Synthesizer Engine
+        // --- Web Audio Synthesizer Engine ---
         let audioCtx = null;
-        function playNote(freq, type, duration) {
+        function playNote(freq, type, duration, vol = 0.15) {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
                 let osc = audioCtx.createOscillator();
                 let gainNode = audioCtx.createGain();
                 
-                osc.type = type || 'sine';
+                osc.type = type;
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                // Smooth volume decay to mimic a real bell/instrument
+                gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
                 
                 osc.connect(gainNode);
@@ -172,24 +188,69 @@
                 
                 osc.start();
                 osc.stop(audioCtx.currentTime + duration);
-            } catch(e) { console.log("Audio not allowed yet"); }
+            } catch(e) {}
         }
 
         function playWinMelody() {
-            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // Beautiful C Major Ascending Arpeggio
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
             notes.forEach((freq, index) => {
-                setTimeout(() => playNote(freq, 'triangle', 0.4), index * 120);
+                setTimeout(() => playNote(freq, 'triangle', 0.4, 0.2), index * 120);
             });
         }
 
+        // --- Tetris BGM Sequencer ---
+        let bgmInterval;
+        let bgmPlaying = false;
+        const tetrisNotes = { 'E5': 659.25, 'B4': 493.88, 'C5': 523.25, 'D5': 587.33, 'A4': 440.00 };
+        const tetrisMelody = [
+            ['E5', 2], ['B4', 1], ['C5', 1], ['D5', 2], ['C5', 1], ['B4', 1],
+            ['A4', 2], ['A4', 1], ['C5', 1], ['E5', 2], ['D5', 1], ['C5', 1],
+            ['B4', 3], ['C5', 1], ['D5', 2], ['E5', 2], ['C5', 2], ['A4', 2], ['A4', 2]
+        ];
+        let noteIdx = 0;
+        let beatLength = 160; // Speed of the song
+
+        function stepBGM() {
+            if (!bgmPlaying) return;
+            let [note, beats] = tetrisMelody[noteIdx];
+            // Play a square wave to sound like an Amiga/Gameboy
+            playNote(tetrisNotes[note], 'square', (beats * beatLength)/1000, 0.03); 
+            
+            noteIdx = (noteIdx + 1) % tetrisMelody.length;
+            bgmInterval = setTimeout(stepBGM, beats * beatLength);
+        }
+
+        function toggleMusic() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            bgmPlaying = !bgmPlaying;
+            document.getElementById('music-btn').innerText = bgmPlaying ? "🎵 Music: ON" : "🎵 Music: OFF";
+            
+            if (bgmPlaying) {
+                noteIdx = 0;
+                stepBGM();
+            } else {
+                clearTimeout(bgmInterval);
+            }
+        }
+
+        // --- Game Logic ---
         function initGame() {
             document.getElementById('board').innerHTML = '';
-            currentRow = 0;
-            currentTile = 0;
-            totalAttempts = 0;
-            currentGuess = "";
-            gameOver = false;
+            currentRow = 0; currentTile = 0; totalAttempts = 0;
+            currentGuess = ""; gameOver = false;
             document.getElementById('win-overlay').style.display = 'none';
+            
+            // Populate Word Bank
+            const wordBank = document.getElementById('word-bank-list');
+            wordBank.innerHTML = '';
+            WORDS.forEach(obj => {
+                let div = document.createElement('div');
+                div.className = 'word-item';
+                div.innerText = `${obj.emoji} ${obj.word}`;
+                wordBank.appendChild(div);
+            });
             
             let picked = WORDS[Math.floor(Math.random() * WORDS.length)];
             targetWord = picked.word.toLowerCase();
@@ -228,8 +289,11 @@
         function press(key) {
             if (gameOver) return;
             
+            // Resume audio context just in case browser suspended it
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            
             if (key === 'BACK') {
-                playNote(220, 'sine', 0.1); // Low tone for delete
+                playNote(220, 'triangle', 0.1, 0.1); 
                 if (currentTile > 0) {
                     currentTile--;
                     currentGuess = currentGuess.slice(0, -1);
@@ -239,14 +303,12 @@
                 if (currentGuess.length === 3) {
                     checkRow();
                 } else {
-                    playNote(150, 'sawtooth', 0.15); // Buzz tone if they hit enter too early
+                    playNote(150, 'sawtooth', 0.15, 0.1);
                 }
             } else if (/^[a-z]$/i.test(key)) {
                 if (currentTile < 3) {
-                    // Unique bright musical pitch for typing letters (C5, D5, E5 style notes)
-                    const letterPitches = [440, 494, 523, 587, 659, 698, 784];
-                    let randomPitch = letterPitches[currentTile * 2];
-                    playNote(randomPitch, 'triangle', 0.15);
+                    const letterPitches = [440, 523, 659]; // Typing pitches
+                    playNote(letterPitches[currentTile], 'triangle', 0.15, 0.1);
                     
                     currentGuess += key.toLowerCase();
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
@@ -255,15 +317,10 @@
             }
         }
 
-        // Add support for Hardware/Manual Keyboards
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                press('ENTER');
-            } else if (e.key === 'Backspace') {
-                press('BACK');
-            } else if (/^[a-zA-Z]$/.test(e.key)) {
-                press(e.key.toLowerCase());
-            }
+            if (e.key === 'Enter') press('ENTER');
+            else if (e.key === 'Backspace') press('BACK');
+            else if (/^[a-zA-Z]$/.test(e.key)) press(e.key.toLowerCase());
         });
 
         function checkRow() {
@@ -295,7 +352,7 @@
             if (rightCount === 3) {
                 gameOver = true;
                 setTimeout(() => {
-                    playWinMelody(); // Play cascading win sequence!
+                    playWinMelody();
                     document.getElementById('word-reveal').innerText = `You spelled ${targetWord.toUpperCase()}!`;
                     document.getElementById('attempt-counter').innerText = `It took ${totalAttempts} ${totalAttempts === 1 ? 'try' : 'tries'}! ⭐`;
                     document.getElementById('win-emoji').innerText = targetEmoji;
@@ -304,8 +361,7 @@
                 return;
             }
             
-            // Standard try chime (short ascending tick)
-            playNote(400, 'sine', 0.1);
+            playNote(400, 'sine', 0.1, 0.1);
             
             currentRow++;
             currentTile = 0;
