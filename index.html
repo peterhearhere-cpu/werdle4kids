@@ -57,6 +57,10 @@
         .key:active { transform: translateY(2px); box-shadow: 0 2px #3578E5; }
         .wide-key { flex: 1.5; background-color: #FF6B6B; box-shadow: 0 4px #E55353; font-size: 0.9rem; text-transform: uppercase; }
         
+        /* Green GO Button */
+        .btn-go { background-color: #6BCB77 !important; box-shadow: 0 4px #4E9F5A !important; }
+        .btn-go:active { box-shadow: 0 2px #4E9F5A !important; }
+        
         .abc-container {
             display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;
             max-width: 400px; margin-top: 5px; background: rgba(255,255,255,0.6); padding: 8px; border-radius: 10px;
@@ -67,7 +71,7 @@
             display: flex; align-items: center; justify-content: center; color: #4D96FF;
         }
 
-        /* ACTIVE COLLECTION DASHBOARD (Bottom of Main Screen) */
+        /* FULL DICTIONARY DASHBOARD (Bottom of Main Screen) */
         .word-bank-wrapper { max-width: 450px; margin-top: 10px; width: 100%; padding-bottom: 10px; }
         .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 5px 0; font-size: 1.1rem; }
         .word-bank {
@@ -78,9 +82,13 @@
         .word-item {
             font-size: 0.75rem; font-weight: bold; padding: 4px 2px; border-radius: 6px; 
             display: flex; flex-direction: column; align-items: center; text-align: center;
+            transition: all 0.3s ease;
         }
-        .word-item.active { background: #FFF9E6; border: 2px solid #FFD93D; color: #333; }
-        .word-item.found { background: #d3d3d3; border: 1px solid #a9a9a9; opacity: 0.4; }
+        
+        /* The 3 Visual States for the Active Dictionary */
+        .word-item.locked { background: #f0f0f0; border: 1px solid #ccc; opacity: 0.6; filter: grayscale(80%); }
+        .word-item.active { background: #FFF9E6; border: 2px solid #FFD93D; color: #333; opacity: 1; filter: none; }
+        .word-item.found { background: #d3d3d3; border: 1px solid #a9a9a9; opacity: 0.4; filter: grayscale(100%); }
         .word-item.found .word-text { text-decoration: line-through; color: #FF6B6B; font-weight: 900; }
 
         /* FULL STICKER BOOK PAGE */
@@ -118,7 +126,6 @@
         .pop-card h2 { color: #6BCB77; font-size: 2rem; margin: 0 0 10px 0; }
         .pop-card .big-emoji { font-size: 4rem; margin: 5px 0; animation: bounce 0.6s infinite alternate; }
         
-        /* Reward Grid - Shows ALL locked words to buy */
         .reward-options-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0;
             max-height: 40vh; overflow-y: auto; padding: 5px;
@@ -150,7 +157,7 @@
         <h1>✨Wordle 4 Autumn & Layla✨</h1>
         <div class="top-buttons">
             <button class="header-btn" id="music-btn" onclick="toggleMusic()">🎵 Music: OFF</button>
-            <button class="header-btn btn-collection" onclick="toggleCollectionPage()">🎒 My Collection</button>
+            <button class="header-btn btn-collection" id="collection-btn-text" onclick="toggleCollectionPage()">🎒 My Collection</button>
         </div>
     </div>
     
@@ -167,7 +174,7 @@
             <button class="key" onclick="press('a')">a</button><button class="key" onclick="press('s')">s</button><button class="key" onclick="press('d')">d</button><button class="key" onclick="press('f')">f</button><button class="key" onclick="press('g')">g</button><button class="key" onclick="press('h')">h</button><button class="key" onclick="press('j')">j</button><button class="key" onclick="press('k')">k</button><button class="key" onclick="press('l')">l</button>
         </div>
         <div class="kbd-row">
-            <button class="key wide-key" onclick="press('ENTER')">GO!</button>
+            <button class="key wide-key btn-go" onclick="press('ENTER')">GO!</button>
             <button class="key" onclick="press('z')">z</button><button class="key" onclick="press('x')">x</button><button class="key" onclick="press('c')">c</button><button class="key" onclick="press('v')">v</button><button class="key" onclick="press('b')">b</button><button class="key" onclick="press('n')">n</button><button class="key" onclick="press('m')">m</button>
             <button class="key wide-key" onclick="press('BACK')">⌫</button>
         </div>
@@ -175,9 +182,9 @@
 
     <div class="abc-container" id="abc-tracker"></div>
     
-    <!-- Active Dashboard (Only unlocked words) -->
+    <!-- Active Dashboard (Shows all 80 words, updates dynamically) -->
     <div class="word-bank-wrapper">
-        <h3>Active Words! 🎯</h3>
+        <h3>Dictionary Hints! 📖</h3>
         <div class="word-bank" id="word-bank-list"></div>
     </div>
 
@@ -213,7 +220,7 @@
     </div>
 
     <script>
-        // EXPANDED 75 WORD DICTIONARY!
+        // EXPANDED 80 WORD DICTIONARY!
         const MASTER_DICTIONARY = [
             { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "arm", emoji: "💪" },
             { word: "bag", emoji: "🎒" }, { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, 
@@ -245,7 +252,7 @@
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile;
-        let isProcessing = false; // Blocks typing during menus!
+        let isProcessing = false; 
         let totalAttempts = 0; let currentGuess = "";
         
         let playerCollection = []; 
@@ -298,18 +305,22 @@
         }
 
         // --- Core Engine Setup ---
-        // Generates fresh, clean objects so old game states don't bleed over
         function getFreshDictionary() {
             return MASTER_DICTIONARY.map(w => ({ word: w.word, emoji: w.emoji, found: false }));
         }
 
         function setupInitialCollection() {
             let freshWords = getFreshDictionary();
-            freshWords.sort(() => 0.5 - Math.random()); // Shuffle
+            freshWords.sort(() => 0.5 - Math.random()); 
             
             playerCollection = freshWords.slice(0, 3); // 3 Starters
-            uncollectedPool = freshWords.slice(3);     // The rest are locked
+            uncollectedPool = freshWords.slice(3);     
             levelCount = 1;
+            updateCollectionCounter();
+        }
+        
+        function updateCollectionCounter() {
+            document.getElementById('collection-btn-text').innerText = `🎒 My Collection (${playerCollection.length}/80)`;
         }
 
         function toggleCollectionPage() {
@@ -326,7 +337,6 @@
             const grid = document.getElementById('full-collection-grid');
             grid.innerHTML = '';
             
-            // Loop through master list alphabetically
             let sortedMaster = getFreshDictionary().sort((a,b) => a.word.localeCompare(b.word));
             
             sortedMaster.forEach(masterObj => {
@@ -348,14 +358,24 @@
             const wordBank = document.getElementById('word-bank-list');
             wordBank.innerHTML = '';
             
-            // Only show words the player currently owns
-            let activeList = [...playerCollection].sort((a,b) => a.word.localeCompare(b.word));
+            // Render ALL 80 Words so they act as a spelling hint sheet
+            let sortedMaster = getFreshDictionary().sort((a,b) => a.word.localeCompare(b.word));
             
-            activeList.forEach(obj => {
+            sortedMaster.forEach(masterObj => {
                 let div = document.createElement('div');
-                div.id = `wb-${obj.word}`;
-                div.className = obj.found ? 'word-item found' : 'word-item active';
-                div.innerHTML = `<span style="font-size: 1.2rem; margin-bottom: 2px;">${obj.emoji}</span><span class="word-text">${obj.word}</span>`;
+                div.id = `wb-${masterObj.word}`;
+                
+                let inCollection = playerCollection.find(p => p.word === masterObj.word);
+                
+                if (inCollection) {
+                    // It's in the active pool! Bright or Crossed Out.
+                    div.className = inCollection.found ? 'word-item found' : 'word-item active';
+                } else {
+                    // It's a locked bonus word! Greyed out but visible for hints.
+                    div.className = 'word-item locked';
+                }
+                
+                div.innerHTML = `<span style="font-size: 1.2rem; margin-bottom: 2px;">${masterObj.emoji}</span><span class="word-text">${masterObj.word}</span>`;
                 wordBank.appendChild(div);
             });
         }
@@ -363,12 +383,13 @@
         function initGame() {
             document.getElementById('board').innerHTML = '';
             currentRow = 0; currentTile = 0; totalAttempts = 0; currentGuess = ""; 
-            isProcessing = false; // Opens keyboard input again
+            isProcessing = false; 
             
             document.getElementById('win-overlay').style.display = 'none';
             document.getElementById('collect-overlay').style.display = 'none';
             
             renderActiveDashboard();
+            updateCollectionCounter();
             
             let activePool = playerCollection.filter(w => !w.found);
             if (activePool.length === 0) { 
@@ -406,7 +427,7 @@
         }
 
         function press(key) {
-            if (isProcessing) return; // Completely blocks input when menus are open
+            if (isProcessing) return; 
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             
             let lowerKey = key.toLowerCase();
@@ -458,7 +479,7 @@
             }
             
             if (rightCount === 3) {
-                isProcessing = true; // Block keyboard immediately
+                isProcessing = true; 
                 
                 let targetInCollection = playerCollection.find(w => w.word === targetWord);
                 if (targetInCollection) targetInCollection.found = true;
@@ -518,6 +539,7 @@
         function selectRewardWord(item, element) {
             uncollectedPool = uncollectedPool.filter(w => w.word !== item.word);
             playerCollection.push(item);
+            updateCollectionCounter(); // Update the 3/80 button text live!
             
             element.style.visibility = 'hidden'; 
             playNote(523.25, 'square', 0.15, 0.1); 
@@ -526,7 +548,7 @@
             if (chosenRewardCount >= targetRewardCount) {
                 levelCount++; // Level up for next time!
                 setTimeout(() => {
-                    initGame(); // Restarts board and drops processing flag
+                    initGame(); 
                 }, 400);
             }
         }
