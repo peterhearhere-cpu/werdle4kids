@@ -361,6 +361,230 @@
                 row.appendChild(tile);
             }
             board.appendChild(row);
+            display: inline-block; margin-top: 10px;
+        }
+        .btn-arrow {
+            display: flex; align-items: center; justify-content: center;
+            padding: 12px 35px 12px 20px; font-size: 1.2rem; font-weight: bold; 
+            background: #6BCB77; color: white; border: none; cursor: pointer;
+            clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%);
+            transition: transform 0.1s;
+        }
+        .btn-arrow:active { transform: scale(0.95) translateX(2px); }
+
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <h1>✨Wordle 4 Autumn & Layla✨</h1>
+        <button id="music-btn" onclick="toggleMusic()">🎵 Music: OFF</button>
+    </div>
+    
+    <div class="board-container">
+        <div class="grid" id="board"></div>
+    </div>
+
+    <div class="keyboard">
+        <div class="kbd-row">
+            <button class="key" onclick="press('q')">q</button><button class="key" onclick="press('w')">w</button><button class="key" onclick="press('e')">e</button><button class="key" onclick="press('r')">r</button><button class="key" onclick="press('t')">t</button><button class="key" onclick="press('y')">y</button><button class="key" onclick="press('u')">u</button><button class="key" onclick="press('i')">i</button><button class="key" onclick="press('o')">o</button><button class="key" onclick="press('p')">p</button>
+        </div>
+        <div class="kbd-row">
+            <button class="key" onclick="press('a')">a</button><button class="key" onclick="press('s')">s</button><button class="key" onclick="press('d')">d</button><button class="key" onclick="press('f')">f</button><button class="key" onclick="press('g')">g</button><button class="key" onclick="press('h')">h</button><button class="key" onclick="press('j')">j</button><button class="key" onclick="press('k')">k</button><button class="key" onclick="press('l')">l</button>
+        </div>
+        <div class="kbd-row">
+            <button class="key wide-key" onclick="press('ENTER')">GO!</button>
+            <button class="key" onclick="press('z')">z</button><button class="key" onclick="press('x')">x</button><button class="key" onclick="press('c')">c</button><button class="key" onclick="press('v')">v</button><button class="key" onclick="press('b')">b</button><button class="key" onclick="press('n')">n</button><button class="key" onclick="press('m')">m</button>
+            <button class="key wide-key" onclick="press('BACK')">⌫</button>
+        </div>
+    </div>
+
+    <div class="abc-container" id="abc-tracker"></div>
+    
+    <!-- Full Dictionary Cheat Sheet -->
+    <div class="word-bank-wrapper">
+        <h3>Dictionary Hints! 📖</h3>
+        <div class="word-bank" id="word-bank-list"></div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="win-overlay">
+        <div class="pop-card">
+            <h2>Hooray! 🎉</h2>
+            <div id="word-reveal" style="font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;"></div>
+            <div id="attempt-counter" style="font-size: 1.1rem; color: #4D96FF; font-weight: bold;"></div>
+            <div class="big-emoji" id="win-emoji">🐱</div>
+            <div class="arrow-btn-wrapper">
+                <button class="btn-arrow" onclick="triggerRewardPhase()">Next Words!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection Reward Selection Overlay -->
+    <div id="collect-overlay">
+        <div class="pop-card">
+            <h2 style="color: #4D96FF; font-size:1.6rem;">Pick Your Prizes! 🎁</h2>
+            <p id="reward-instructions" style="font-weight: bold; margin: 2px 0; font-size: 0.9rem;"></p>
+            <div class="reward-options-grid" id="reward-choices"></div>
+        </div>
+    </div>
+
+    <script>
+        // EXPANDED 75 WORD DICTIONARY!
+        const ALL_WORDS = [
+            { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "arm", emoji: "💪" },
+            { word: "bag", emoji: "🎒" }, { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, 
+            { word: "bee", emoji: "🐝" }, { word: "boa", emoji: "🐍" }, { word: "boo", emoji: "👻" }, 
+            { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, { word: "boy", emoji: "👦" },
+            { word: "bug", emoji: "🐛" }, { word: "bum", emoji: "🍑" }, { word: "bun", emoji: "🥯" }, 
+            { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, { word: "car", emoji: "🚗" }, 
+            { word: "cat", emoji: "🐱" }, { word: "cog", emoji: "⚙️" }, { word: "cop", emoji: "👮" },
+            { word: "cow", emoji: "🐮" }, { word: "cup", emoji: "🥤" }, { word: "dog", emoji: "🐶" }, 
+            { word: "ear", emoji: "👂" }, { word: "egg", emoji: "🥚" }, { word: "fan", emoji: "🪭" }, 
+            { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, { word: "gem", emoji: "💎" }, 
+            { word: "gym", emoji: "🏋️" }, { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, 
+            { word: "ice", emoji: "🧊" }, { word: "jam", emoji: "🍓" }, { word: "jar", emoji: "🫙" }, 
+            { word: "jet", emoji: "🛩️" }, { word: "joy", emoji: "😊" }, { word: "key", emoji: "🔑" }, 
+            { word: "leg", emoji: "🦵" }, { word: "lip", emoji: "👄" }, { word: "log", emoji: "🪵" }, 
+            { word: "mad", emoji: "😠" }, { word: "man", emoji: "👨" }, { word: "map", emoji: "🗺️" }, 
+            { word: "mop", emoji: "🧹" }, { word: "mud", emoji: "🤎" }, { word: "mug", emoji: "🍺" }, 
+            { word: "net", emoji: "🕸️" }, { word: "nut", emoji: "🥜" }, { word: "owl", emoji: "🦉" }, 
+            { word: "pea", emoji: "🫛" }, { word: "pen", emoji: "🖊️" }, { word: "pie", emoji: "🥧" },
+            { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, { word: "poo", emoji: "💩" }, 
+            { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, { word: "rug", emoji: "🧺" }, 
+            { word: "sad", emoji: "😢" }, { word: "sea", emoji: "🌊" }, { word: "see", emoji: "👁️" }, 
+            { word: "sit", emoji: "🪑" }, { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, 
+            { word: "sun", emoji: "☀️" }, { word: "tag", emoji: "🏷️" }, { word: "tap", emoji: "🚰" },
+            { word: "tip", emoji: "💡" }, { word: "toe", emoji: "🦶" }, { word: "toy", emoji: "🧸" }, 
+            { word: "try", emoji: "🙂" }, { word: "tub", emoji: "🛁" }, { word: "van", emoji: "🚐" },
+            { word: "vet", emoji: "🩺" }, { word: "web", emoji: "🕸️" }, { word: "wee", emoji: "🚽" },
+            { word: "zip", emoji: "🤐" }, { word: "zoo", emoji: "🦓" }
+        ];
+        
+        let targetWord, targetEmoji, currentRow, currentTile, gameOver;
+        let totalAttempts = 0; let currentGuess = "";
+        
+        let playerCollection = []; 
+        let uncollectedPool = [];   
+        let levelCount = 1;        
+        let chosenRewardCount = 0; let targetRewardCount = 1;
+        
+        const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+        let audioCtx = null;
+
+        function playNote(freq, type, duration, vol = 0.1) {
+            if (!freq) return; 
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                let osc = audioCtx.createOscillator(); let gainNode = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + (duration * 0.8), 0.05);
+                osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playWinMelody() {
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, index) => { setTimeout(() => playNote(freq, 'square', 0.2, 0.15), index * 100); });
+        }
+
+        // --- Tetris Music Engine ---
+        let bgmInterval; let bgmPlaying = false;
+        const n = { C2: 65.41, Eb2: 77.78, F2: 87.31, G2: 98.00, Bb2: 116.54, C3: 130.81, D3: 146.83, Eb3: 155.56, G3: 196.00, C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00 };
+        const amigaSequence = [[null, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4], [n.G4, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4], [n.F4, n.F2, 2], [n.D4, n.F2, 2], [null, n.F3, 4], [null, n.C3, 4], [null, n.G2, 4], [n.C4, n.C2, 2], [n.D4, n.C2, 2], [n.Eb4, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4], [n.D4, n.Bb2, 4], [null, n.Bb3, 4], [n.C4, n.F2, 4], [null, n.F3, 4], [n.C4, n.C2, 8], [null, n.C3, 4], [null, n.G2, 4]];
+        let noteIdx = 0; let beatLength = 110; 
+
+        function stepBGM() {
+            if (!bgmPlaying) return;
+            let [melody, bass, ticks] = amigaSequence[noteIdx];
+            if (melody) playNote(melody, 'square', (ticks * beatLength)/1000, 0.04); 
+            if (bass) playNote(bass, 'sawtooth', (ticks * beatLength)/1000, 0.08);
+            noteIdx = (noteIdx + 1) % amigaSequence.length;
+            bgmInterval = setTimeout(stepBGM, ticks * beatLength);
+        }
+
+        function toggleMusic() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            bgmPlaying = !bgmPlaying;
+            document.getElementById('music-btn').innerText = bgmPlaying ? "🎵 Music: ON" : "🎵 Music: OFF";
+            if (bgmPlaying) { noteIdx = 0; stepBGM(); } else { clearTimeout(bgmInterval); }
+        }
+
+        // --- Setup & UI ---
+        function setupInitialCollection() {
+            let sortedMaster = [...ALL_WORDS].sort((a,b) => a.word.localeCompare(b.word));
+            let shuffled = [...ALL_WORDS].sort(() => 0.5 - Math.random());
+            playerCollection = shuffled.slice(0, 3);
+            uncollectedPool = sortedMaster.filter(word => !playerCollection.find(p => p.word === word.word));
+        }
+
+        function renderWordBankUI() {
+            const wordBank = document.getElementById('word-bank-list');
+            wordBank.innerHTML = '';
+            
+            // Render ALL words so they are visible as hints!
+            let sortedMaster = [...ALL_WORDS].sort((a,b) => a.word.localeCompare(b.word));
+            
+            sortedMaster.forEach(masterObj => {
+                let div = document.createElement('div');
+                div.id = `wb-${masterObj.word.toLowerCase()}`;
+                
+                let inCollection = playerCollection.find(p => p.word === masterObj.word);
+                
+                if (inCollection) {
+                    if (inCollection.found) {
+                        div.className = 'word-item found'; // Spelled & Shaded
+                    } else {
+                        div.className = 'word-item active'; // Bright
+                    }
+                } else {
+                    div.className = 'word-item locked'; // Uncollected (visible but grey)
+                }
+                
+                div.innerHTML = `<span style="font-size: 1.1rem; margin-bottom: 2px;">${masterObj.emoji}</span><span class="word-text">${masterObj.word}</span>`;
+                wordBank.appendChild(div);
+            });
+        }
+
+        function initGame() {
+            document.getElementById('board').innerHTML = '';
+            currentRow = 0; currentTile = 0; totalAttempts = 0;
+            currentGuess = ""; gameOver = false;
+            document.getElementById('win-overlay').style.display = 'none';
+            document.getElementById('collect-overlay').style.display = 'none';
+            
+            renderWordBankUI(); // Update the visual cheat sheet
+            
+            let activePool = playerCollection.filter(w => !w.found);
+            if (activePool.length === 0) { triggerRewardPhase(); return; }
+            
+            let picked = activePool[Math.floor(Math.random() * activePool.length)];
+            targetWord = picked.word.toLowerCase(); targetEmoji = picked.emoji;
+            addNewRow();
+            
+            const tracker = document.getElementById('abc-tracker');
+            tracker.innerHTML = '';
+            alphabet.forEach(letter => {
+                let node = document.createElement('div');
+                node.className = 'abc-letter'; node.id = `abc-${letter}`; node.innerText = letter;
+                tracker.appendChild(node);
+            });
+        }
+
+        function addNewRow() {
+            const board = document.getElementById('board');
+            let row = document.createElement('div');
+            row.className = 'row'; row.id = `row-${currentRow}`;
+            for (let j = 0; j < 3; j++) {
+                let tile = document.createElement('div');
+                tile.className = 'tile'; tile.id = `tile-${currentRow}-${j}`;
+                row.appendChild(tile);
+            }
+            board.appendChild(row);
             const container = document.querySelector('.board-container');
             container.scrollTop = container.scrollHeight;
         }
