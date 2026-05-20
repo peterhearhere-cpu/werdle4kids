@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Werdle 4 Kids! ✨</title>
+    <title>Wordle 4 Kids! ✨</title>
     <style>
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
@@ -20,21 +20,12 @@
         
         /* Header & Music Toggle */
         .header-bar { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 100%; 
-            max-width: 400px; 
-            margin-bottom: 10px; 
-            gap: 8px;
+            display: flex; flex-direction: column; align-items: center; 
+            width: 100%; max-width: 400px; margin-bottom: 5px; gap: 8px;
         }
         h1 { 
-            color: #FF6B6B; 
-            font-size: 1.8rem; 
-            text-shadow: 2px 2px #FFD93D; 
-            margin: 0; 
-            text-align: center; 
-            line-height: 1.2;
+            color: #FF6B6B; font-size: 1.8rem; text-shadow: 2px 2px #FFD93D; 
+            margin: 0; text-align: center; line-height: 1.2;
         }
         #music-btn {
             background-color: #4D96FF; color: white; border: none; border-radius: 8px;
@@ -51,83 +42,112 @@
         .grid { display: grid; grid-template-columns: 1fr; gap: 8px; width: auto; }
         .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .tile {
-            width: 50px; height: 50px; border: 3px solid #4D96FF; border-radius: 12px;
-            background-color: white; font-size: 1.8rem; font-weight: bold; color: #333;
-            display: flex; align-items: center; justify-content: center; text-transform: uppercase;
+            width: 45px; height: 45px; border: 3px solid #4D96FF; border-radius: 12px;
+            background-color: white; font-size: 1.6rem; font-weight: bold; color: #333;
+            display: flex; align-items: center; justify-content: center; text-transform: lowercase;
         }
         .correct { background-color: #6BCB77 !important; color: white; border-color: #55b061; transform: scale(1.05); }
         .present { background-color: #FFD93D !important; color: white; border-color: #e6c230; }
         .absent { background-color: #D3D3D3 !important; color: #777; border-color: #b5b5b5; text-decoration: line-through; }
         
-        /* Keyboard */
-        .keyboard { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 400px; padding: 5px; }
+        /* LOWERCASE VIRTUAL KEYBOARD */
+        .keyboard { display: flex; flex-direction: column; gap: 5px; width: 100%; max-width: 400px; padding: 2px; }
         .kbd-row { display: flex; justify-content: center; gap: 4px; width: 100%; }
         .key {
             flex: 1; padding: 12px 0; background-color: #4D96FF; color: white;
             border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold;
-            cursor: pointer; text-transform: uppercase; box-shadow: 0 4px #3578E5;
+            cursor: pointer; text-transform: lowercase; box-shadow: 0 4px #3578E5;
             text-align: center; -webkit-tap-highlight-color: transparent;
         }
         .key:active { transform: translateY(2px); box-shadow: 0 2px #3578E5; }
-        .wide-key { flex: 1.5; background-color: #FF6B6B; box-shadow: 0 4px #E55353; font-size: 0.9rem; }
+        .wide-key { flex: 1.5; background-color: #FF6B6B; box-shadow: 0 4px #E55353; font-size: 0.9rem; text-transform: uppercase; }
         
-        /* Alphabet Tracker */
         .abc-container {
             display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;
             max-width: 400px; margin-top: 5px; background: rgba(255,255,255,0.6);
             padding: 8px; border-radius: 10px;
         }
         .abc-letter {
-            width: 23px; height: 23px; border-radius: 4px; background: #FFF; border: 1.5px solid #4D96FF;
-            font-size: 0.85rem; font-weight: bold; text-transform: uppercase;
+            width: 20px; height: 20px; border-radius: 4px; background: #FFF; border: 1.5px solid #4D96FF;
+            font-size: 0.8rem; font-weight: bold; text-transform: lowercase;
             display: flex; align-items: center; justify-content: center; color: #4D96FF;
         }
 
-        /* FULL VIEW Word Bank */
-        .word-bank-wrapper { max-width: 450px; margin-top: 15px; width: 100%; padding-bottom: 20px; }
-        .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 10px 0; font-size: 1.2rem; }
+        /* THE CHEAT SHEET WORD BANK */
+        .word-bank-wrapper { max-width: 450px; margin-top: 10px; width: 100%; padding-bottom: 10px; }
+        .word-bank-wrapper h3 { text-align: center; color: #4D96FF; margin: 0 0 5px 0; font-size: 1.1rem; }
         .word-bank {
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
             gap: 4px;
             background: white; border: 3px dashed #FFD93D; border-radius: 15px;
             padding: 8px; 
-            height: auto; 
+            max-height: 25vh; /* Makes it scrollable so it fits on screen! */
+            overflow-y: auto;
             box-sizing: border-box;
         }
         .word-item {
-            font-size: 0.75rem; font-weight: bold; background: #FFF9E6; color: #333;
-            padding: 4px 2px; border-radius: 6px; border: 1px solid #FFD93D;
-            transition: all 0.3s ease;
+            font-size: 0.75rem; font-weight: bold; 
+            padding: 4px 2px; border-radius: 6px; 
             display: flex; flex-direction: column; 
             align-items: center; justify-content: center; text-align: center;
+            transition: all 0.3s ease;
         }
-        
-        /* The specific CSS fix to properly cross out flexbox items */
+        /* State 1: Locked (Greyed out but readable) */
+        .word-item.locked {
+            background: #f0f0f0; border: 1px solid #ccc; opacity: 0.6; filter: grayscale(80%);
+        }
+        /* State 2: Active (Bright & Colorful) */
+        .word-item.active {
+            background: #FFF9E6; border: 2px solid #FFD93D; color: #333; opacity: 1; filter: none;
+        }
+        /* State 3: Spelled! (Crossed out and deeply shaded) */
         .word-item.found {
-            opacity: 0.4;
-            background: #e0e0e0; border-color: #b5b5b5;
+            background: #d3d3d3; border: 1px solid #a9a9a9; opacity: 0.35; filter: grayscale(100%);
         }
         .word-item.found .word-text {
-            text-decoration: line-through;
-            color: #FF6B6B; /* Turns the struck-through text red to make it obvious */
+            text-decoration: line-through; color: #FF6B6B; font-weight: 900;
         }
 
-        /* Celebration Screen */
-        #win-overlay {
+        /* Interactive Overlays */
+        #win-overlay, #collect-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10;
+            background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 10;
         }
         .pop-card {
-            background: white; padding: 30px; border-radius: 20px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 5px solid #FFD93D; max-width: 80%;
+            background: white; padding: 20px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 5px solid #FFD93D; max-width: 85%;
+            max-height: 90vh; display: flex; flex-direction: column;
         }
-        .pop-card h2 { color: #6BCB77; font-size: 2.5rem; margin: 0 0 10px 0; }
-        .pop-card .big-emoji { font-size: 5rem; margin: 15px 0; animation: bounce 0.6s infinite alternate; }
-        .btn-next {
-            padding: 12px 25px; font-size: 1.3rem; font-weight: bold; background: #FF6B6B;
-            color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px #E55353;
+        .pop-card h2 { color: #6BCB77; font-size: 2rem; margin: 0 0 10px 0; }
+        .pop-card .big-emoji { font-size: 4rem; margin: 5px 0; animation: bounce 0.6s infinite alternate; }
+        
+        /* Reward Grid - Now holds ALL locked words and scrolls! */
+        .reward-options-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0;
+            max-height: 40vh; overflow-y: auto; padding: 5px;
         }
+        .reward-choice-btn {
+            background: #FFF9E6; border: 2px solid #FFD93D; border-radius: 8px;
+            padding: 8px 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .reward-choice-btn:hover { background: #FFEAA7; transform: scale(1.05); }
+        
+        /* Green Arrow Button Container & Shape */
+        .arrow-btn-wrapper {
+            filter: drop-shadow(0 4px 0 #4E9F5A); 
+            display: inline-block; margin-top: 10px;
+        }
+        .btn-arrow {
+            display: flex; align-items: center; justify-content: center;
+            padding: 12px 35px 12px 20px; font-size: 1.2rem; font-weight: bold; 
+            background: #6BCB77; color: white; border: none; cursor: pointer;
+            clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%);
+            transition: transform 0.1s;
+        }
+        .btn-arrow:active { transform: scale(0.95) translateX(2px); }
+
         @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-15px); } }
     </style>
 </head>
@@ -158,176 +178,175 @@
 
     <div class="abc-container" id="abc-tracker"></div>
     
-    <!-- Expanded Word Bank Display -->
+    <!-- Full Dictionary Cheat Sheet -->
     <div class="word-bank-wrapper">
-        <h3>Words to find! 🔍</h3>
+        <h3>Dictionary Hints! 📖</h3>
         <div class="word-bank" id="word-bank-list"></div>
     </div>
 
-    <!-- Celebration Screen -->
+    <!-- Victory Screen -->
     <div id="win-overlay">
         <div class="pop-card">
             <h2>Hooray! 🎉</h2>
             <div id="word-reveal" style="font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;"></div>
-            <div id="attempt-counter" style="font-size: 1.2rem; color: #4D96FF; font-weight: bold;"></div>
+            <div id="attempt-counter" style="font-size: 1.1rem; color: #4D96FF; font-weight: bold;"></div>
             <div class="big-emoji" id="win-emoji">🐱</div>
-            <button class="btn-next" onclick="resetGame()">Play Again! 🌟</button>
+            <div class="arrow-btn-wrapper">
+                <button class="btn-arrow" onclick="triggerRewardPhase()">Next Words!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection Reward Selection Overlay -->
+    <div id="collect-overlay">
+        <div class="pop-card">
+            <h2 style="color: #4D96FF; font-size:1.6rem;">Pick Your Prizes! 🎁</h2>
+            <p id="reward-instructions" style="font-weight: bold; margin: 2px 0; font-size: 0.9rem;"></p>
+            <div class="reward-options-grid" id="reward-choices"></div>
         </div>
     </div>
 
     <script>
-        const WORDS = [
-            { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "bag", emoji: "🎒" },
-            { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, { word: "bee", emoji: "🐝" },
-            { word: "boa", emoji: "🐍" }, { word: "boo", emoji: "👻" }, { word: "bow", emoji: "🎀" }, 
-            { word: "box", emoji: "📦" }, { word: "bug", emoji: "🐛" }, { word: "bum", emoji: "🍑" }, 
-            { word: "bun", emoji: "🥯" }, { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, 
-            { word: "car", emoji: "🚗" }, { word: "cat", emoji: "🐱" }, { word: "cog", emoji: "⚙️" }, 
+        // EXPANDED 75 WORD DICTIONARY!
+        const ALL_WORDS = [
+            { word: "ant", emoji: "🐜" }, { word: "ape", emoji: "🦍" }, { word: "arm", emoji: "💪" },
+            { word: "bag", emoji: "🎒" }, { word: "bat", emoji: "🦇" }, { word: "bed", emoji: "🛏️" }, 
+            { word: "bee", emoji: "🐝" }, { word: "boa", emoji: "🐍" }, { word: "boo", emoji: "👻" }, 
+            { word: "bow", emoji: "🎀" }, { word: "box", emoji: "📦" }, { word: "boy", emoji: "👦" },
+            { word: "bug", emoji: "🐛" }, { word: "bum", emoji: "🍑" }, { word: "bun", emoji: "🥯" }, 
+            { word: "bus", emoji: "🚌" }, { word: "can", emoji: "🥫" }, { word: "car", emoji: "🚗" }, 
+            { word: "cat", emoji: "🐱" }, { word: "cog", emoji: "⚙️" }, { word: "cop", emoji: "👮" },
             { word: "cow", emoji: "🐮" }, { word: "cup", emoji: "🥤" }, { word: "dog", emoji: "🐶" }, 
-            { word: "egg", emoji: "🥚" }, { word: "fan", emoji: "🪭" }, { word: "fly", emoji: "🪰" }, 
-            { word: "fox", emoji: "🦊" }, { word: "gem", emoji: "💎" }, { word: "hat", emoji: "🎩" }, 
-            { word: "hen", emoji: "🐔" }, { word: "ice", emoji: "🧊" }, { word: "jam", emoji: "🍓" }, 
-            { word: "jar", emoji: "🫙" }, { word: "jet", emoji: "🛩️" }, { word: "key", emoji: "🔑" }, 
-            { word: "lip", emoji: "👄" }, { word: "log", emoji: "🪵" }, { word: "map", emoji: "🗺️" }, 
-            { word: "mop", emoji: "🧹" }, { word: "mug", emoji: "🍺" }, { word: "net", emoji: "🕸️" }, 
-            { word: "nut", emoji: "🥜" }, { word: "owl", emoji: "🦉" }, { word: "pea", emoji: "🫛" }, 
-            { word: "pen", emoji: "🖊️" }, { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, 
-            { word: "poo", emoji: "💩" }, { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, 
-            { word: "rug", emoji: "🧺" }, { word: "sea", emoji: "🌊" }, { word: "see", emoji: "👁️" }, 
+            { word: "ear", emoji: "👂" }, { word: "egg", emoji: "🥚" }, { word: "fan", emoji: "🪭" }, 
+            { word: "fly", emoji: "🪰" }, { word: "fox", emoji: "🦊" }, { word: "gem", emoji: "💎" }, 
+            { word: "gym", emoji: "🏋️" }, { word: "hat", emoji: "🎩" }, { word: "hen", emoji: "🐔" }, 
+            { word: "ice", emoji: "🧊" }, { word: "jam", emoji: "🍓" }, { word: "jar", emoji: "🫙" }, 
+            { word: "jet", emoji: "🛩️" }, { word: "joy", emoji: "😊" }, { word: "key", emoji: "🔑" }, 
+            { word: "leg", emoji: "🦵" }, { word: "lip", emoji: "👄" }, { word: "log", emoji: "🪵" }, 
+            { word: "mad", emoji: "😠" }, { word: "man", emoji: "👨" }, { word: "map", emoji: "🗺️" }, 
+            { word: "mop", emoji: "🧹" }, { word: "mud", emoji: "🤎" }, { word: "mug", emoji: "🍺" }, 
+            { word: "net", emoji: "🕸️" }, { word: "nut", emoji: "🥜" }, { word: "owl", emoji: "🦉" }, 
+            { word: "pea", emoji: "🫛" }, { word: "pen", emoji: "🖊️" }, { word: "pie", emoji: "🥧" },
+            { word: "pig", emoji: "🐷" }, { word: "pin", emoji: "📌" }, { word: "poo", emoji: "💩" }, 
+            { word: "pot", emoji: "🪴" }, { word: "red", emoji: "🔴" }, { word: "rug", emoji: "🧺" }, 
+            { word: "sad", emoji: "😢" }, { word: "sea", emoji: "🌊" }, { word: "see", emoji: "👁️" }, 
             { word: "sit", emoji: "🪑" }, { word: "sky", emoji: "☁️" }, { word: "sub", emoji: "🚢" }, 
-            { word: "sun", emoji: "☀️" }, { word: "tag", emoji: "🏷️" }, { word: "toy", emoji: "🧸" }, 
-            { word: "try", emoji: "🙂" }, { word: "web", emoji: "🕸️" }, { word: "wee", emoji: "🚽" }
+            { word: "sun", emoji: "☀️" }, { word: "tag", emoji: "🏷️" }, { word: "tap", emoji: "🚰" },
+            { word: "tip", emoji: "💡" }, { word: "toe", emoji: "🦶" }, { word: "toy", emoji: "🧸" }, 
+            { word: "try", emoji: "🙂" }, { word: "tub", emoji: "🛁" }, { word: "van", emoji: "🚐" },
+            { word: "vet", emoji: "🩺" }, { word: "web", emoji: "🕸️" }, { word: "wee", emoji: "🚽" },
+            { word: "zip", emoji: "🤐" }, { word: "zoo", emoji: "🦓" }
         ];
         
         let targetWord, targetEmoji, currentRow, currentTile, gameOver;
-        let totalAttempts = 0;
-        let currentGuess = "";
-        let remainingWords = [];
-        const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+        let totalAttempts = 0; let currentGuess = "";
         
-        // --- Dual-Voice Web Audio Engine ---
+        let playerCollection = []; 
+        let uncollectedPool = [];   
+        let levelCount = 1;        
+        let chosenRewardCount = 0; let targetRewardCount = 1;
+        
+        const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
         let audioCtx = null;
+
         function playNote(freq, type, duration, vol = 0.1) {
             if (!freq) return; 
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
-                
-                let osc = audioCtx.createOscillator();
-                let gainNode = audioCtx.createGain();
-                
-                osc.type = type; 
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                
+                let osc = audioCtx.createOscillator(); let gainNode = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
                 gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
                 gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + (duration * 0.8), 0.05);
-                
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
+                osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
             } catch(e) {}
         }
 
         function playWinMelody() {
             const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-            notes.forEach((freq, index) => {
-                setTimeout(() => playNote(freq, 'square', 0.2, 0.15), index * 100);
-            });
+            notes.forEach((freq, index) => { setTimeout(() => playNote(freq, 'square', 0.2, 0.15), index * 100); });
         }
 
-        // --- Amiga Tracker Module ---
-        let bgmInterval;
-        let bgmPlaying = false;
-        
-        const n = { 
-            C2: 65.41, Eb2: 77.78, F2: 87.31, G2: 98.00, Bb2: 116.54, 
-            C3: 130.81, D3: 146.83, Eb3: 155.56, G3: 196.00,
-            C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00
-        };
-
-        const amigaSequence = [
-            [null, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
-            [n.G4, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
-            [n.F4, n.F2, 2], [n.D4, n.F2, 2], [null, n.F3, 4], [null, n.C3, 4], [null, n.G2, 4],
-            [n.C4, n.C2, 2], [n.D4, n.C2, 2], [n.Eb4, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4],
-            [n.D4, n.Bb2, 4], [null, n.Bb3, 4], [n.C4, n.F2, 4], [null, n.F3, 4],
-            [n.C4, n.C2, 8], [null, n.C3, 4], [null, n.G2, 4]
-        ];
-        
-        let noteIdx = 0;
-        let beatLength = 110; 
+        // --- Tetris Music Engine ---
+        let bgmInterval; let bgmPlaying = false;
+        const n = { C2: 65.41, Eb2: 77.78, F2: 87.31, G2: 98.00, Bb2: 116.54, C3: 130.81, D3: 146.83, Eb3: 155.56, G3: 196.00, C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00 };
+        const amigaSequence = [[null, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4], [n.G4, n.C2, 4], [null, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4], [n.F4, n.F2, 2], [n.D4, n.F2, 2], [null, n.F3, 4], [null, n.C3, 4], [null, n.G2, 4], [n.C4, n.C2, 2], [n.D4, n.C2, 2], [n.Eb4, n.C3, 4], [null, n.G2, 4], [null, n.Eb2, 4], [n.D4, n.Bb2, 4], [null, n.Bb3, 4], [n.C4, n.F2, 4], [null, n.F3, 4], [n.C4, n.C2, 8], [null, n.C3, 4], [null, n.G2, 4]];
+        let noteIdx = 0; let beatLength = 110; 
 
         function stepBGM() {
             if (!bgmPlaying) return;
             let [melody, bass, ticks] = amigaSequence[noteIdx];
-            
             if (melody) playNote(melody, 'square', (ticks * beatLength)/1000, 0.04); 
             if (bass) playNote(bass, 'sawtooth', (ticks * beatLength)/1000, 0.08);
-            
             noteIdx = (noteIdx + 1) % amigaSequence.length;
             bgmInterval = setTimeout(stepBGM, ticks * beatLength);
         }
 
         function toggleMusic() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
             bgmPlaying = !bgmPlaying;
             document.getElementById('music-btn').innerText = bgmPlaying ? "🎵 Music: ON" : "🎵 Music: OFF";
-            
-            if (bgmPlaying) {
-                noteIdx = 0;
-                stepBGM();
-            } else {
-                clearTimeout(bgmInterval);
-            }
+            if (bgmPlaying) { noteIdx = 0; stepBGM(); } else { clearTimeout(bgmInterval); }
         }
 
-        // --- Word Bank Setup ---
-        function setupWordBank() {
+        // --- Setup & UI ---
+        function setupInitialCollection() {
+            let sortedMaster = [...ALL_WORDS].sort((a,b) => a.word.localeCompare(b.word));
+            let shuffled = [...ALL_WORDS].sort(() => 0.5 - Math.random());
+            playerCollection = shuffled.slice(0, 3);
+            uncollectedPool = sortedMaster.filter(word => !playerCollection.find(p => p.word === word.word));
+        }
+
+        function renderWordBankUI() {
             const wordBank = document.getElementById('word-bank-list');
             wordBank.innerHTML = '';
-            WORDS.sort((a, b) => a.word.localeCompare(b.word));
             
-            WORDS.forEach(obj => {
+            // Render ALL words so they are visible as hints!
+            let sortedMaster = [...ALL_WORDS].sort((a,b) => a.word.localeCompare(b.word));
+            
+            sortedMaster.forEach(masterObj => {
                 let div = document.createElement('div');
-                div.className = 'word-item';
-                div.id = `wb-${obj.word.toLowerCase()}`;
-                // Added a specific class "word-text" to the span so we can cross it out cleanly
-                div.innerHTML = `<span style="font-size: 1.2rem; margin-bottom: 2px;">${obj.emoji}</span><span class="word-text">${obj.word}</span>`;
+                div.id = `wb-${masterObj.word.toLowerCase()}`;
+                
+                let inCollection = playerCollection.find(p => p.word === masterObj.word);
+                
+                if (inCollection) {
+                    if (inCollection.found) {
+                        div.className = 'word-item found'; // Spelled & Shaded
+                    } else {
+                        div.className = 'word-item active'; // Bright
+                    }
+                } else {
+                    div.className = 'word-item locked'; // Uncollected (visible but grey)
+                }
+                
+                div.innerHTML = `<span style="font-size: 1.1rem; margin-bottom: 2px;">${masterObj.emoji}</span><span class="word-text">${masterObj.word}</span>`;
                 wordBank.appendChild(div);
             });
-            remainingWords = [...WORDS];
         }
 
-        // --- Game Logic ---
         function initGame() {
             document.getElementById('board').innerHTML = '';
             currentRow = 0; currentTile = 0; totalAttempts = 0;
             currentGuess = ""; gameOver = false;
             document.getElementById('win-overlay').style.display = 'none';
+            document.getElementById('collect-overlay').style.display = 'none';
             
-            if (remainingWords.length === 0) {
-                setupWordBank();
-            }
+            renderWordBankUI(); // Update the visual cheat sheet
             
-            let randomIndex = Math.floor(Math.random() * remainingWords.length);
-            let picked = remainingWords.splice(randomIndex, 1)[0];
+            let activePool = playerCollection.filter(w => !w.found);
+            if (activePool.length === 0) { triggerRewardPhase(); return; }
             
-            targetWord = picked.word.toLowerCase();
-            targetEmoji = picked.emoji;
-            
+            let picked = activePool[Math.floor(Math.random() * activePool.length)];
+            targetWord = picked.word.toLowerCase(); targetEmoji = picked.emoji;
             addNewRow();
             
             const tracker = document.getElementById('abc-tracker');
             tracker.innerHTML = '';
             alphabet.forEach(letter => {
                 let node = document.createElement('div');
-                node.className = 'abc-letter';
-                node.id = `abc-${letter}`;
-                node.innerText = letter;
+                node.className = 'abc-letter'; node.id = `abc-${letter}`; node.innerText = letter;
                 tracker.appendChild(node);
             });
         }
@@ -335,16 +354,13 @@
         function addNewRow() {
             const board = document.getElementById('board');
             let row = document.createElement('div');
-            row.className = 'row';
-            row.id = `row-${currentRow}`;
+            row.className = 'row'; row.id = `row-${currentRow}`;
             for (let j = 0; j < 3; j++) {
                 let tile = document.createElement('div');
-                tile.className = 'tile';
-                tile.id = `tile-${currentRow}-${j}`;
+                tile.className = 'tile'; tile.id = `tile-${currentRow}-${j}`;
                 row.appendChild(tile);
             }
             board.appendChild(row);
-            
             const container = document.querySelector('.board-container');
             container.scrollTop = container.scrollHeight;
         }
@@ -353,26 +369,22 @@
             if (gameOver) return;
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             
-            if (key === 'BACK') {
+            let lowerKey = key.toLowerCase();
+            if (lowerKey === 'back') {
                 playNote(220, 'square', 0.1, 0.05); 
                 if (currentTile > 0) {
-                    currentTile--;
-                    currentGuess = currentGuess.slice(0, -1);
+                    currentTile--; currentGuess = currentGuess.slice(0, -1);
                     document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = '';
                 }
-            } else if (key === 'ENTER') {
-                if (currentGuess.length === 3) {
-                    checkRow();
-                } else {
-                    playNote(150, 'sawtooth', 0.15, 0.1);
-                }
-            } else if (/^[a-z]$/i.test(key)) {
+            } else if (lowerKey === 'enter') {
+                if (currentGuess.length === 3) checkRow();
+                else playNote(150, 'sawtooth', 0.15, 0.1);
+            } else if (/^[a-z]$/.test(lowerKey)) {
                 if (currentTile < 3) {
                     const letterPitches = [440, 523, 659];
                     playNote(letterPitches[currentTile], 'square', 0.1, 0.05);
-                    
-                    currentGuess += key.toLowerCase();
-                    document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = key;
+                    currentGuess += lowerKey;
+                    document.getElementById(`tile-${currentRow}-${currentTile}`).innerText = lowerKey;
                     currentTile++;
                 }
             }
@@ -381,13 +393,11 @@
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') press('ENTER');
             else if (e.key === 'Backspace') press('BACK');
-            else if (/^[a-zA-Z]$/.test(e.key)) press(e.key.toLowerCase());
+            else if (/^[a-zA-Z]$/.test(e.key)) press(e.key);
         });
 
         function checkRow() {
-            let rightCount = 0;
-            totalAttempts++;
-            
+            let rightCount = 0; totalAttempts++;
             for (let i = 0; i < 3; i++) {
                 let tile = document.getElementById(`tile-${currentRow}-${i}`);
                 let letter = currentGuess[i];
@@ -399,24 +409,22 @@
                     rightCount++;
                 } else if (targetWord.includes(letter)) {
                     tile.classList.add('present');
-                    if (abcNode && !abcNode.classList.contains('correct')) {
-                        abcNode.className = 'abc-letter present';
-                    }
+                    if (abcNode && !abcNode.classList.contains('correct')) { abcNode.className = 'abc-letter present'; }
                 } else {
                     tile.classList.add('absent');
-                    if (abcNode && !abcNode.classList.contains('correct') && !abcNode.classList.contains('present')) {
-                        abcNode.className = 'abc-letter absent';
-                    }
+                    if (abcNode && !abcNode.classList.contains('correct') && !abcNode.classList.contains('present')) { abcNode.className = 'abc-letter absent'; }
                 }
             }
             
             if (rightCount === 3) {
                 gameOver = true;
-                
-                // Triggers the CSS class that strikes out the specific word text
-                let foundItem = document.getElementById(`wb-${targetWord}`);
-                if (foundItem) {
-                    foundItem.classList.add('found');
+                let targetInCollection = playerCollection.find(w => w.word.toLowerCase() === targetWord);
+                if (targetInCollection) targetInCollection.found = true;
+
+                // Update the bottom UI so it crosses out instantly
+                let uiElement = document.getElementById(`wb-${targetWord}`);
+                if(uiElement) {
+                    uiElement.className = 'word-item found';
                 }
 
                 setTimeout(() => {
@@ -430,16 +438,60 @@
             }
             
             playNote(400, 'square', 0.1, 0.05);
-            
-            currentRow++;
-            currentTile = 0;
-            currentGuess = "";
+            currentRow++; currentTile = 0; currentGuess = "";
             addNewRow();
         }
 
-        function resetGame() { initGame(); }
-        
-        setupWordBank();
+        // --- Additive Collection Reward Engine ---
+        function triggerRewardPhase() {
+            document.getElementById('win-overlay').style.display = 'none';
+            
+            if (uncollectedPool.length === 0) {
+                alert("UNBELIEVABLE! You have gathered every single word in the game! 🌟 Starting a brand new journey!");
+                setupInitialCollection(); initGame();
+                return;
+            }
+            
+            chosenRewardCount = 0;
+            targetRewardCount = levelCount; 
+            
+            // Make sure we don't ask them to pick 3 if only 1 is left!
+            if (targetRewardCount > uncollectedPool.length) targetRewardCount = uncollectedPool.length;
+            
+            document.getElementById('reward-instructions').innerText = `Pick ${targetRewardCount} mystery word${targetRewardCount > 1 ? 's' : ''} to unlock!`;
+            
+            const choicesContainer = document.getElementById('reward-choices');
+            choicesContainer.innerHTML = '';
+            
+            // SHOW ALL LOCKED WORDS so they can browse their favorites!
+            uncollectedPool.forEach(item => {
+                let btn = document.createElement('button');
+                btn.className = 'reward-choice-btn';
+                btn.innerHTML = `<span style="font-size:1.6rem;">${item.emoji}</span><span>${item.word}</span>`;
+                btn.onclick = () => selectRewardWord(item, btn);
+                choicesContainer.appendChild(btn);
+            });
+            
+            document.getElementById('collect-overlay').style.display = 'flex';
+        }
+
+        function selectRewardWord(item, element) {
+            uncollectedPool = uncollectedPool.filter(w => w.word !== item.word);
+            playerCollection.push(item);
+            
+            element.style.visibility = 'hidden'; 
+            playNote(523.25, 'square', 0.15, 0.1); 
+            
+            chosenRewardCount++;
+            if (chosenRewardCount >= targetRewardCount || uncollectedPool.length === 0) {
+                levelCount++; // Speed things up next round!
+                setTimeout(() => {
+                    initGame();
+                }, 400);
+            }
+        }
+
+        setupInitialCollection();
         initGame();
     </script>
 </body>
